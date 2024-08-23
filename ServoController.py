@@ -1,4 +1,122 @@
+import os
+from Config import Config
+if Config.SERVOS_ACTIVE: os.system("sudo pigpiod")
+from gpiozero import AngularServo
+from gpiozero.pins.pigpio import PiGPIOFactory
+import time
+import threading
+from Logger import Logger
+from LogType import LogType
+from enum import Enum
+
 # Class: ServoController
 # Description:
 #       Controls the behavior of the servos
 #       Makes the servos move and sends signals when movement is done
+# Logs:
+#       1: Box finishes opening/closing
+#       2: Open/close functions invoked
+#       3: getState results
+#       5: All function invocations
+#       6: All rotate info
+class ServoController():
+    class State(Enum):
+        OPEN = 1
+        OPENING = 2
+        CLOSED = 3
+        CLOSING = 4
+
+    def __init__(self, boxNum):
+        self.__boxNum = boxNum
+
+        Logger.log(LogType.SERVO, 5, f"(func: __init__, box: {self.__boxNum}) function invoked")
+
+        # Set up info needed by servos
+        self.__closeAngle = 180
+        self.__openAngle = 90
+        if Config.SERVOS_ACTIVE:
+            my_factory = PiGPIOFactory() 
+            myCorrection=0.0
+            maxPW=(2.5+myCorrection)/1000
+            minPW=(0.5-myCorrection)/1000
+            
+            # Save the Servo info
+            gpio = Config.GPIO_SLOTS[boxNum]
+            self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=180, min_pulse_width=minPW, max_pulse_width=maxPW, pin_factory=my_factory)
+        
+        self.__state = self.State.CLOSED
+
+        # Establish threading info
+        self.__thread = None
+        self.__threadDoneEvent = None
+
+
+    # Function: getState
+    # Description: check on the state of the servo, if it is open, opening, closed, or closing
+    def getState(self):
+        Logger.log(LogType.SERVO, 5, f"(func: getState, box: {self.__boxNum}) function invoked")
+
+        # If the rotate thread has finished...
+        if self.__threadDoneEvent is not None and self.__threadDoneEvent.is_set():
+            # clean up the thread
+            self.__thread.join()
+            self.__thread = None
+            self.__threadDoneEvent = None
+
+            # Update the state
+            self.__state = self.State.OPEN if self.__state == self.State.OPENING else self.State.CLOSED
+
+        Logger.log(LogType.SERVO, 3, f"(func: getState, box: {self.__boxNum}) - current state: {self.__state.name}")
+        return self.__state
+
+
+    # Functions: open & close
+    # Description: call the thread starting function for opening or closing the box
+    def open(self):
+        Logger.log(LogType.SERVO, 2, f"(func: __open, box: {self.__boxNum}) function invoked")
+        self.__state = self.State.OPENING
+        self.__startThread(True)
+    def close(self):
+        Logger.log(LogType.SERVO, 2, f"(func: __close, box: {self.__boxNum}) function invoked")
+        self.__state = self.State.CLOSING
+        self.__startThread(False)
+
+
+    # Function: startThread
+    # Description: Start up a thread for opening/closing the box
+    def __startThread(self, opening):
+        Logger.log(LogType.SERVO, 5, f"(func: __startThread, box: {self.__boxNum}) function invoked")
+
+        # Use a thread to open/close the box
+        self.__threadDoneEvent = threading.Event()
+        self.__thread = threading.Thread(target=self.__rotate, args=(self.__threadDoneEvent, opening))
+        self.__thread.start()
+
+
+    # Function: rotate
+    # Description: Use a thread to rotate the box to open/close
+    def __rotate(self, event, opening):
+        Logger.log(LogType.SERVO, 5, f"(func: __rotate, box: {self.__boxNum}) function invoked")
+
+        angleRange = range(self.__closeAngle, self.__openAngle - 1, -1) if opening else range(self.__openAngle, self.__closeAngle + 1, 1)
+        for angle in angleRange:
+            if Config.SERVOS_ACTIVE:
+                self.__servo.angle = angle
+            time.sleep(Config.SERVO_DELAY_SEC)
+
+        newState = "OPEN" if opening else "CLOSED"
+        Logger.log(LogType.SERVO, 1, f"(func: __rotate, box: {self.__boxNum}) New State: {newState}")
+
+        event.set()
+
+
+# FOR TESTING THIS CLASS SPECIFICALLY
+if __name__ == "__main__":
+    sc = ServoController(0)
+    sc.getState()
+    sc.open()
+    while sc.getState() != ServoController.State.OPEN:
+        time.sleep(0.25)
+    sc.close()
+    while sc.getState() != ServoController.State.CLOSED:
+        time.sleep(0.25)

@@ -11,11 +11,13 @@ from LogType import LogType
 #   1: Cat Identified
 #   2: Cat Detected
 #   3: All tracking logs
+#   5: All function invocations
 class CameraController:
 
     # Function: init
     # Description: Get the object ready to do some object detection
     def __init__(self):
+        Logger.log(LogType.CAMERA, 5, "__init__ function has been invoked")
         # -- Set up Camera
         self.__cap = cv2.VideoCapture(0)
         self.__cap.set(3,640)
@@ -50,6 +52,7 @@ class CameraController:
     # Function: checkCamera:
     # Descrption: Gets an image from the camera and checks it for a cat
     def checkCamera(self, img=None):
+        Logger.log(LogType.CAMERA, 5, "checkCamera function has been invoked")
         if img is None:
             # Get an image from the camera
             success, img = self.__cap.read()
@@ -102,6 +105,7 @@ class CameraController:
                   nms=0.2,
                   objects=['cat']
                   ):
+        Logger.log(LogType.CAMERA, 5, "detectCat function has been invoked")
         # Use the detector to find objects in the image
         classIds, confs, bbox = self.__net.detect(img,confThreshold=thres,nmsThreshold=nms)
         
@@ -132,6 +136,7 @@ class CameraController:
     # Description: given an image an a box where a cat was detected, 
     #               determine the average bgr color of the area
     def getAverageColor(self, img, catBox):
+        Logger.log(LogType.CAMERA, 5, "getAverageColor function has been invoked")
         # Get the box info of what we want to scan
         width = int(catBox[2] / 2)
         height = int(catBox[3] / 2)
@@ -154,6 +159,7 @@ class CameraController:
     # Function: getWhichCat
     # Description: Determine which cat we're looking at based on the detected BGR color
     def __getWhichCat(self, detectedColorBGR):
+        Logger.log(LogType.CAMERA, 5, "__getWhichCat function has been invoked")
         # Get values for how different the detected color is from the expected colors
         colorDiffs = []
         for expectedColorBGR in Config.CAT_EXPECTED_COLORS:
@@ -171,6 +177,7 @@ class CameraController:
     # Function: updateTrackingNumbers
     # Description: based on what was just detected, update the tracking numbers
     def __updateTrackingNumbers(self, eventNum):
+        Logger.log(LogType.CAMERA, 5, "__updateTrackingNumbers function has been invoked")
         self.__trackingInfo[eventNum] += 1
         
         # If a cat has been detected, then reset the NoCat event
@@ -190,3 +197,48 @@ class CameraController:
                 
 
         Logger.log(LogType.CAMERA, 3, f'Tracking State: {self.__trackingInfo}')
+
+
+# FOR TESTING THIS CLASS SPECIFICALLY
+if __name__ == "__main__":
+    cc = CameraController()
+
+    control = cv2.imread("cv/control.jpg")
+    bento = cv2.imread("cv/bento.jpg")
+    nori = cv2.imread("cv/nori.jpg")
+    both = cv2.imread("cv/both.jpg")
+    sequence = [both]
+    # sequence = [
+    #     control,
+    #     control,
+    #     bento,
+    #     bento,
+    #     nori,
+    #     bento,
+    #     bento,
+    #     bento,
+    #     bento,
+    #     control,
+    #     control,
+    #     bento,
+    #     bento,
+    #     bento,
+    #     bento,
+    #     bento,
+    #     bento,
+    #     control,
+    #     control,
+    #     control,
+    #     nori,
+    #     control,
+    #     control,
+    #     control,
+    #     control,
+    #     control,
+    #     control,
+    #     control,
+    # ]
+    
+    for readImg in sequence:
+        catsIdentified = cc.checkCamera(img=readImg)
+        Logger.log(LogType.CONTROL, 1, f"Cats indentified: {catsIdentified}")

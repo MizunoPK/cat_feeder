@@ -11,8 +11,8 @@ class Config:
 
     # --- LOGGER CONFIGURATION ---
     LOG_LEVELS = {
-        LogType.ControlCenter: 5,
-        LogType.FEEDER: 5,
+        LogType.CONTROL: 5,
+        LogType.BOX: 5,
         LogType.CAMERA: 3,
         LogType.SERVO: 5,
         LogType.ULTRASONIC: 5,
@@ -30,4 +30,8 @@ class Config:
     ] # Values found via GetMedianColorTool for what the expected colors of each cat are
     FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a car needs to be seen before assuming they are there
 
+    # --- SERVO CONFIG ---
+    SERVOS_ACTIVE = False # Whether or not servos are plugged in and useable
+    GPIO_SLOTS = [18, 23] # The gpio slots being used by the servos - should correspond to the cat order
+    SERVO_DELAY_SEC = 0.005 # The delay between incrementing the angle of the servo
 
