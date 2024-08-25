@@ -32,6 +32,11 @@ class Config:
 
     # --- SERVO CONFIG ---
     SERVOS_ACTIVE = False # Whether or not servos are plugged in and useable
-    GPIO_SLOTS = [18, 23] # The gpio slots being used by the servos - should correspond to the cat order
+    SERVO_GPIO_SLOTS = [18, 23] # The gpio slots being used by the servos - should correspond to the cat order
     SERVO_DELAY_SEC = 0.005 # The delay between incrementing the angle of the servo
 
+    # --- ULTRASONIC CONFIG
+    ULTRASONIC_ACTIVE = False # Whether or not the sensors are plugged in and ready
+    ULTRASONIC_TRIG_PINS = [19, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
+    ULTRASONIC_ECHO_PINS = [19, 24] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
+    ULTRASONIC_MAX_DISTANCE = 30 # Maximum distance we check for - measured in cm

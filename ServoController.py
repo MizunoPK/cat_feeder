@@ -1,6 +1,5 @@
 import os
 from Config import Config
-if Config.SERVOS_ACTIVE: os.system("sudo pigpiod")
 from gpiozero import AngularServo
 from gpiozero.pins.pigpio import PiGPIOFactory
 import time
@@ -41,7 +40,7 @@ class ServoController():
             minPW=(0.5-myCorrection)/1000
             
             # Save the Servo info
-            gpio = Config.GPIO_SLOTS[boxNum]
+            gpio = Config.SERVO_GPIO_SLOTS[boxNum]
             self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=180, min_pulse_width=minPW, max_pulse_width=maxPW, pin_factory=my_factory)
         
         self.__state = self.State.CLOSED
@@ -50,6 +49,11 @@ class ServoController():
         self.__thread = None
         self.__threadDoneEvent = None
 
+    # Function: shutDown
+    # Description: Shut down the servo
+    def shutDown(self):
+        Logger.log(LogType.SERVO, 5, f"(func: shutDown, box: {self.__boxNum}) function invoked")
+        self.__servo.close()
 
     # Function: getState
     # Description: check on the state of the servo, if it is open, opening, closed, or closing

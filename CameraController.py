@@ -17,7 +17,7 @@ class CameraController:
     # Function: init
     # Description: Get the object ready to do some object detection
     def __init__(self):
-        Logger.log(LogType.CAMERA, 5, "__init__ function has been invoked")
+        Logger.log(LogType.CAMERA, 5, "(func: __init__) function invoked")
         # -- Set up Camera
         self.__cap = cv2.VideoCapture(0)
         self.__cap.set(3,640)
@@ -52,13 +52,13 @@ class CameraController:
     # Function: checkCamera:
     # Descrption: Gets an image from the camera and checks it for a cat
     def checkCamera(self, img=None):
-        Logger.log(LogType.CAMERA, 5, "checkCamera function has been invoked")
+        Logger.log(LogType.CAMERA, 5, "(func: checkCamera) function invoked")
         if img is None:
             # Get an image from the camera
             success, img = self.__cap.read()
             if not success:
                 return
-        Logger.log(LogType.CAMERA, 3, "New frame being processed...")
+        Logger.log(LogType.CAMERA, 3, "(func: checkCamera) New frame being processed...")
 
         # Detect cats
         img, objectInfo = self.detectCat(img)
@@ -73,14 +73,14 @@ class CameraController:
             else:
                 detectedCats.append(catIndex)
 
-            Logger.log(LogType.CAMERA, 2, f"Cat Detected: {Config.CATS[catIndex]} --- Color: {catColor}")
+            Logger.log(LogType.CAMERA, 2, f"(func: checkCamera) Cat Detected: {Config.CATS[catIndex]} --- Color: {catColor}")
 
             self.__updateTrackingNumbers(catIndex)
         
         # Note if we did not find any cats
         if len(objectInfo) == 0:
             self.__updateTrackingNumbers(-1)
-            Logger.log(LogType.CAMERA, 3, f"No Cat Detected")
+            Logger.log(LogType.CAMERA, 3, f"(func: checkCamera) No Cat Detected")
 
         # Display the video
         if Config.SHOW_VIDEO:
@@ -105,7 +105,7 @@ class CameraController:
                   nms=0.2,
                   objects=['cat']
                   ):
-        Logger.log(LogType.CAMERA, 5, "detectCat function has been invoked")
+        Logger.log(LogType.CAMERA, 5, "(Func: detectCat) function invoked")
         # Use the detector to find objects in the image
         classIds, confs, bbox = self.__net.detect(img,confThreshold=thres,nmsThreshold=nms)
         
@@ -136,7 +136,7 @@ class CameraController:
     # Description: given an image an a box where a cat was detected, 
     #               determine the average bgr color of the area
     def getAverageColor(self, img, catBox):
-        Logger.log(LogType.CAMERA, 5, "getAverageColor function has been invoked")
+        Logger.log(LogType.CAMERA, 5, "(Func: getAverageColor) function invoked")
         # Get the box info of what we want to scan
         width = int(catBox[2] / 2)
         height = int(catBox[3] / 2)
@@ -159,7 +159,7 @@ class CameraController:
     # Function: getWhichCat
     # Description: Determine which cat we're looking at based on the detected BGR color
     def __getWhichCat(self, detectedColorBGR):
-        Logger.log(LogType.CAMERA, 5, "__getWhichCat function has been invoked")
+        Logger.log(LogType.CAMERA, 5, "(Func: __getWhichCat) function invoked")
         # Get values for how different the detected color is from the expected colors
         colorDiffs = []
         for expectedColorBGR in Config.CAT_EXPECTED_COLORS:
@@ -177,7 +177,7 @@ class CameraController:
     # Function: updateTrackingNumbers
     # Description: based on what was just detected, update the tracking numbers
     def __updateTrackingNumbers(self, eventNum):
-        Logger.log(LogType.CAMERA, 5, "__updateTrackingNumbers function has been invoked")
+        Logger.log(LogType.CAMERA, 5, "(Func: __updateTrackingNumbers) function invoked")
         self.__trackingInfo[eventNum] += 1
         
         # If a cat has been detected, then reset the NoCat event
@@ -189,14 +189,14 @@ class CameraController:
         elif self.__trackingInfo[-1] == Config.FRAMES_FOR_CONFIRMATION:
             for i in range(len(Config.CATS)):
                 self.__trackingInfo[i] = 0
-            Logger.log(LogType.CAMERA, 1, f'Cats have not been detected in {Config.FRAMES_FOR_CONFIRMATION} frames -- resetting...')
+            Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) Cats have not been detected in {Config.FRAMES_FOR_CONFIRMATION} frames -- resetting...')
 
 
         if self.__trackingInfo[eventNum] == Config.FRAMES_FOR_CONFIRMATION and eventNum != -1:
-                Logger.log(LogType.CAMERA, 1, f'{Config.CATS[eventNum]} IDENTIFIED')
+                Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) {Config.CATS[eventNum]} IDENTIFIED')
                 
 
-        Logger.log(LogType.CAMERA, 3, f'Tracking State: {self.__trackingInfo}')
+        Logger.log(LogType.CAMERA, 3, f'(Func: __updateTrackingNumbers) Tracking State: {self.__trackingInfo}')
 
 
 # FOR TESTING THIS CLASS SPECIFICALLY
