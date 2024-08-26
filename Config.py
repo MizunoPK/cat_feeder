@@ -19,6 +19,9 @@ class Config:
         LogType.BUTTON: 5
     }
 
+    # --- BOX CONFIG ---
+    BOX_GRACE_PERIOD = 15 # number of seconds to keep the box open before restarting detection efforts
+
     # --- CAMERA CONFIGURATION ---
     SHOW_VIDEO = True # Whether or not to display the camera frames as they are read
     DRAW_ON_IMAGE = True # Whether or not to draw on the image
@@ -41,8 +44,8 @@ class Config:
     ULTRASONIC_TRIG_PINS = [19, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
     ULTRASONIC_ECHO_PINS = [19, 24] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
     ULTRASONIC_MAX_DISTANCE = 30 # Maximum distance we check for - measured in cm
+    ULTRASONIC_COOLDOWN = 15 # seconds until we've decided the cat has definitely left
 
     # --- BUTTON CONFIG ---
     BUTTON_PIN = 17 # GPIO pin for button
     LED_PIN = 18 # GPIO pin for LED
-    BUTTON_COOLDOWN = 5 # Cooldown in seconds before the button can be pressed again

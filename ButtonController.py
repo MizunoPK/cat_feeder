@@ -11,7 +11,7 @@ import threading
 #       Lets us manually open the box
 # Logs:
 #       1: Changing button states
-#       2: Cooldown info
+#       2: Clickable info
 #       4: All button state results
 #       5: All function invokations
 class ButtonController:
@@ -33,17 +33,17 @@ class ButtonController:
 
         # If we can change state: See if the button has been pressed and change state
         if self._stateChangeable and self.__button.is_active:
-            self.changeState()
+            self.__changeState()
 
         # Return the state
         Logger.log(LogType.BUTTON, 2, f"(func: isTurnedOn, box: {self.__boxNum}) Button state = {self.__turnedOn}")
         return self.__turnedOn
 
 
-    # Function changeState
+    # Function __changeState
     # Description: change the state to be either turned on or off
-    def changeState(self):
-        Logger.log(LogType.BUTTON, 5, f"(func: changeState, box: {self.__boxNum}) function invoked")
+    def __changeState(self):
+        Logger.log(LogType.BUTTON, 5, f"(func: __changeState, box: {self.__boxNum}) function invoked")
         self.__turnedOn = not self.__turnedOn
 
         if self.__turnedOn:
@@ -51,16 +51,14 @@ class ButtonController:
         else:
             self.__led.off()
 
-        Logger.log(LogType.BUTTON, 1, f"(func: changeState, box: {self.__boxNum}) State changed to: {self.__turnedOn}")
-        
-        cooldownThread = threading.Thread(target=self.__cooldown, args=())
-        cooldownThread.start()
+        Logger.log(LogType.BUTTON, 1, f"(func: __changeState, box: {self.__boxNum}) State changed to: {self.__turnedOn}")
 
         
-    # Function cooldown
-    # Description: a thread function that tracks the cooldown before being able to change states again
-    def __cooldown(self):
-        Logger.log(LogType.BUTTON, 5, f"(func: __cooldown, box: {self.__boxNum}) function invoked")
-        sleep(Config.BUTTON_COOLDOWN)
-        self._stateChangeable = True
-        Logger.log(LogType.BUTTON, 2, f"(func: __cooldown, box: {self.__boxNum}) Cooldown finished")
+    # Function setClickable
+    # Description: set whether the button is clickable or not
+    def setClickable(self, clickable):
+        Logger.log(LogType.BUTTON, 5, f"(func: setClickable, box: {self.__boxNum}) function invoked")
+        
+        self._stateChangeable = clickable
+
+        Logger.log(LogType.BUTTON, 2, f"(func: setClickable, box: {self.__boxNum}) Clickable = {clickable}")
