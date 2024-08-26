@@ -16,6 +16,7 @@ class Config:
         LogType.CAMERA: 3,
         LogType.SERVO: 5,
         LogType.ULTRASONIC: 5,
+        LogType.BUTTON: 5
     }
 
     # --- CAMERA CONFIGURATION ---
@@ -40,3 +41,8 @@ class Config:
     ULTRASONIC_TRIG_PINS = [19, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
     ULTRASONIC_ECHO_PINS = [19, 24] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
     ULTRASONIC_MAX_DISTANCE = 30 # Maximum distance we check for - measured in cm
+
+    # --- BUTTON CONFIG ---
+    BUTTON_PIN = 17 # GPIO pin for button
+    LED_PIN = 18 # GPIO pin for LED
+    BUTTON_COOLDOWN = 5 # Cooldown in seconds before the button can be pressed again
