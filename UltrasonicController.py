@@ -1,5 +1,4 @@
 from gpiozero import DistanceSensor
-from gpiozero.pins.pigpio import PiGPIOFactory
 from Config import Config
 from Logger import Logger
 from LogType import LogType
@@ -26,8 +25,7 @@ class UltrasonicController:
         trigPin = Config.ULTRASONIC_TRIG_PINS[boxNum]
         echoPin = Config.ULTRASONIC_ECHO_PINS[boxNum]
         if Config.ULTRASONIC_ACTIVE:
-            my_factory = PiGPIOFactory() 
-            self.__sensor = DistanceSensor(echo=echoPin, trigger=trigPin, max_distance=1, pin_factory=my_factory)
+            self.__sensor = DistanceSensor(echo=echoPin, trigger=trigPin, max_distance=1)
 
 
     # Function: isDetectingObject
@@ -36,7 +34,7 @@ class UltrasonicController:
         Logger.log(LogType.ULTRASONIC, 4, f"(func: isDetectingObject, box: {self.__boxNum}) function invoked")
         
         # Check on the cooldown
-        self.__outOfCooldown()
+        isOffCooldown = self.__isOffCooldown()
 
         if Config.ULTRASONIC_ACTIVE:
             distance = self.__sensor.distance * 100
@@ -48,6 +46,7 @@ class UltrasonicController:
             if objectDetected != self.__detectingSomething:
                 # If we are now detecting something:
                 if objectDetected:
+                    Logger.log(LogType.ULTRASONIC, 1, f"(func: isDetectingObject, box: {self.__boxNum})  OBJECT DETECTED")
                     self.__detectingSomething = True
                     self.__cooldownStartTime = None
                 
@@ -56,7 +55,8 @@ class UltrasonicController:
                     self.__cooldownStartTime = time.perf_counter()
 
                 # If we are seeing nothing after the cooldown finishes - change the state
-                elif self.__isOffCooldown(): 
+                elif isOffCooldown: 
+                    Logger.log(LogType.ULTRASONIC, 1, f"(func: isDetectingObject, box: {self.__boxNum})  OBJECT NO LONGER DETECTED")
                     self.__detectingSomething = False
                     self.__cooldownStartTime = None
 
@@ -73,7 +73,7 @@ class UltrasonicController:
         currentTime = time.perf_counter()
         isOffCooldown = False
         if (currentTime - self.__cooldownStartTime) >= Config.ULTRASONIC_COOLDOWN:
-            Logger.log(LogType.ULTRASONIC, 2, f"(func: __outOfCooldown, box: {self.__boxNum}) Cooldown Finished")
+            Logger.log(LogType.ULTRASONIC, 2, f"(func: __isOffCooldown, box: {self.__boxNum}) Cooldown Finished")
             isOffCooldown = True
         return isOffCooldown
         
@@ -84,3 +84,11 @@ class UltrasonicController:
         Logger.log(LogType.ULTRASONIC, 4, f"(func: isDetectingObject, box: {self.__boxNum}) function invoked")
         self.__detectingSomething = False
         self.__cooldownStartTime = None
+
+
+if __name__ == "__main__":
+    uc = UltrasonicController(0)
+    uc.resetDetecting()
+    while True:
+        uc.isDetectingObject()
+        time.sleep(0.25)

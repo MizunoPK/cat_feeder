@@ -1,7 +1,5 @@
-import os
 from Config import Config
 from gpiozero import AngularServo
-from gpiozero.pins.pigpio import PiGPIOFactory
 import time
 import threading
 from Logger import Logger
@@ -34,14 +32,13 @@ class ServoController():
         self.__closeAngle = 180
         self.__openAngle = 90
         if Config.SERVOS_ACTIVE:
-            my_factory = PiGPIOFactory() 
             myCorrection=0.0
             maxPW=(2.5+myCorrection)/1000
             minPW=(0.5-myCorrection)/1000
             
             # Save the Servo info
             gpio = Config.SERVO_GPIO_SLOTS[boxNum]
-            self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=180, min_pulse_width=minPW, max_pulse_width=maxPW, pin_factory=my_factory)
+            self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=180, min_pulse_width=minPW, max_pulse_width=maxPW)
         
         self.__state = self.State.CLOSED
 

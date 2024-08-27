@@ -20,8 +20,8 @@ class ButtonController:
         self.__boxNum = boxNum
         Logger.log(LogType.BUTTON, 5, f"(func: __init__, box: {self.__boxNum}) function invoked")
 
-        self.__button = Button(Config.BUTTON_PIN)
-        self.__led = LED(Config.LED_PIN)
+        self.__button = Button(Config.BUTTON_PIN[boxNum])
+        self.__led = LED(Config.LED_PIN[boxNum])
         self._stateChangeable = True
         self.__turnedOn = False
 
@@ -51,6 +51,8 @@ class ButtonController:
         else:
             self.__led.off()
 
+        self.setClickable(False)
+
         Logger.log(LogType.BUTTON, 1, f"(func: __changeState, box: {self.__boxNum}) State changed to: {self.__turnedOn}")
 
         
@@ -62,3 +64,12 @@ class ButtonController:
         self._stateChangeable = clickable
 
         Logger.log(LogType.BUTTON, 2, f"(func: setClickable, box: {self.__boxNum}) Clickable = {clickable}")
+
+
+if __name__ == "__main__":
+    bc = ButtonController(0)
+    bc.setClickable(True)
+    while not bc.isTurnedOn():
+        sleep(0.25)
+    while bc.isTurnedOn():
+        sleep(0.25)

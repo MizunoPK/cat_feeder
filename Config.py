@@ -35,17 +35,17 @@ class Config:
     FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a car needs to be seen before assuming they are there
 
     # --- SERVO CONFIG ---
-    SERVOS_ACTIVE = False # Whether or not servos are plugged in and useable
+    SERVOS_ACTIVE = True # Whether or not servos are plugged in and useable
     SERVO_GPIO_SLOTS = [18, 23] # The gpio slots being used by the servos - should correspond to the cat order
-    SERVO_DELAY_SEC = 0.005 # The delay between incrementing the angle of the servo
+    SERVO_DELAY_SEC = 0.008 # The delay between incrementing the angle of the servo
 
     # --- ULTRASONIC CONFIG
-    ULTRASONIC_ACTIVE = False # Whether or not the sensors are plugged in and ready
-    ULTRASONIC_TRIG_PINS = [19, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
-    ULTRASONIC_ECHO_PINS = [19, 24] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
-    ULTRASONIC_MAX_DISTANCE = 30 # Maximum distance we check for - measured in cm
+    ULTRASONIC_ACTIVE = True # Whether or not the sensors are plugged in and ready
+    ULTRASONIC_TRIG_PINS = [20, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
+    ULTRASONIC_ECHO_PINS = [21, 24] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
+    ULTRASONIC_MAX_DISTANCE = 15 # Maximum distance we check for - measured in cm
     ULTRASONIC_COOLDOWN = 15 # seconds until we've decided the cat has definitely left
 
     # --- BUTTON CONFIG ---
-    BUTTON_PIN = 17 # GPIO pin for button
-    LED_PIN = 18 # GPIO pin for LED
+    BUTTON_PIN = [23,24] # GPIO pin for button
+    LED_PIN = [4,5] # GPIO pin for LED
