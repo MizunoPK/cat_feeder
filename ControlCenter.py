@@ -27,20 +27,21 @@ class ControlCenter:
     def run(self):
         Logger.log(LogType.CONTROL, 5, "run function has been invoked")
 
-        # Determine if we need info from the camera
-        needCamera = False
-        for box in self.__boxes:
-            if box.needsCamera():
-                needCamera = True
-                break
+        while True:
+            # Determine if we need info from the camera
+            needCamera = False
+            for box in self.__boxes:
+                if box.needsCamera():
+                    needCamera = True
+                    break
 
-        # Get info from the camera
-        catsIdentified = [] if (not needCamera) else self.__cameraController.checkCamera()
+            # Get info from the camera
+            catsIdentified = [] if (not needCamera) else self.__cameraController.checkCamera()
 
-        # Process each box
-        for catNum in range(len(Config.CATS)):
-            catIdentified = catNum in catsIdentified
-            self.__boxes[catNum].process(catIdentified)
+            # Process each box
+            for catNum in range(len(Config.CATS)):
+                catIdentified = catNum in catsIdentified
+                self.__boxes[catNum].process(catIdentified)
 
     
     # Function: shutDown
