@@ -29,7 +29,7 @@ class ServoController():
         Logger.log(LogType.SERVO, 5, f"(func: __init__, box: {self.__boxNum}) function invoked")
 
         # Set up info needed by servos
-        self.__closeAngle = 180
+        self.__closeAngle = 180 if Config.SERVO_SIDES[boxNum] == "L" else 0
         self.__openAngle = 90
         if Config.SERVOS_ACTIVE:
             myCorrection=0.0
@@ -99,7 +99,13 @@ class ServoController():
     def __rotate(self, event, opening):
         Logger.log(LogType.SERVO, 5, f"(func: __rotate, box: {self.__boxNum}) function invoked")
 
-        angleRange = range(self.__closeAngle, self.__openAngle - 1, -1) if opening else range(self.__openAngle, self.__closeAngle + 1, 1)
+        startAngle = self.__closeAngle if opening else self.__openAngle
+        endAngle = self.__openAngle if opening else self.__closeAngle
+        movementDir = -1 if self.__closeAngle == 180 else 1
+        if not opening:
+            movementDir*=-1
+        angleRange = range(startAngle, endAngle + movementDir, movementDir)
+        Logger.log(LogType.SERVO, 4, f"(func: __rotate, box: {self.__boxNum}) Range Data: Start: {startAngle}, End: {endAngle}, Dir: {movementDir}")
         for angle in angleRange:
             if Config.SERVOS_ACTIVE:
                 self.__servo.angle = angle
@@ -115,9 +121,10 @@ class ServoController():
 if __name__ == "__main__":
     sc = ServoController(0)
     sc.getState()
-    sc.open()
-    while sc.getState() != ServoController.State.OPEN:
-        time.sleep(0.25)
-    sc.close()
-    while sc.getState() != ServoController.State.CLOSED:
-        time.sleep(0.25)
+    while True:
+        sc.open()
+        while sc.getState() != ServoController.State.OPEN:
+            time.sleep(0.25)
+        sc.close()
+        while sc.getState() != ServoController.State.CLOSED:
+            time.sleep(0.25)

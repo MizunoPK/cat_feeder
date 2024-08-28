@@ -37,7 +37,8 @@ class Config:
     # --- SERVO CONFIG ---
     SERVOS_ACTIVE = True # Whether or not servos are plugged in and useable
     SERVO_GPIO_SLOTS = [18, 23] # The gpio slots being used by the servos - should correspond to the cat order
-    SERVO_DELAY_SEC = 0.008 # The delay between incrementing the angle of the servo
+    SERVO_SIDES = ["L", "R"]
+    SERVO_DELAY_SEC = 0.01 # The delay between incrementing the angle of the servo
 
     # --- ULTRASONIC CONFIG
     ULTRASONIC_ACTIVE = True # Whether or not the sensors are plugged in and ready
