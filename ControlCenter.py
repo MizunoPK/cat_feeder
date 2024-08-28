@@ -47,4 +47,6 @@ class ControlCenter:
     # Description: Shut down all processes
     def shutDown(self):
         Logger.log(LogType.CONTROL, 1, "----- SHUTTING DOWN SYSTEM -----")
+        for box in self.__boxes:
+            box.shutDown()
 

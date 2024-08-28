@@ -25,7 +25,7 @@ class Config:
     # --- CAMERA CONFIGURATION ---
     SHOW_VIDEO = True # Whether or not to display the camera frames as they are read
     DRAW_ON_IMAGE = True # Whether or not to draw on the image
-    STEP_THROUGH_VIDEO = True # Whether or not to step through the video or play it continuously
+    STEP_THROUGH_VIDEO = False # Whether or not to step through the video or play it continuously
     CAMERA_DETECTION_THRESHOLD = 0.6  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
     COLOR_THRESHOLD = 40  # threshold to say this is nori vs bento - scale of 0-255 where 0 is closer to black
     CAT_EXPECTED_COLORS = [
@@ -36,17 +36,17 @@ class Config:
 
     # --- SERVO CONFIG ---
     SERVOS_ACTIVE = True # Whether or not servos are plugged in and useable
-    SERVO_GPIO_SLOTS = [18, 23] # The gpio slots being used by the servos - should correspond to the cat order
+    SERVO_GPIO_SLOTS = [18, 24] # The gpio slots being used by the servos - should correspond to the cat order
     SERVO_SIDES = ["L", "R"]
     SERVO_DELAY_SEC = 0.01 # The delay between incrementing the angle of the servo
 
     # --- ULTRASONIC CONFIG
     ULTRASONIC_ACTIVE = True # Whether or not the sensors are plugged in and ready
-    ULTRASONIC_TRIG_PINS = [20, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
-    ULTRASONIC_ECHO_PINS = [21, 24] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
+    ULTRASONIC_TRIG_PINS = [20, 16] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
+    ULTRASONIC_ECHO_PINS = [21, 12] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
     ULTRASONIC_MAX_DISTANCE = 15 # Maximum distance we check for - measured in cm
     ULTRASONIC_COOLDOWN = 15 # seconds until we've decided the cat has definitely left
 
     # --- BUTTON CONFIG ---
-    BUTTON_PIN = [23,24] # GPIO pin for button
-    LED_PIN = [4,5] # GPIO pin for LED
+    BUTTON_PIN = [23,17] # GPIO pin for button
+    LED_PIN = [4,27] # GPIO pin for LED

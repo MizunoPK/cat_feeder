@@ -7,12 +7,12 @@ servo =AngularServo(18, initial_angle=0, min_pulse_width=0.0006, max_pulse_width
 #thres = 0.45 # Threshold to detect object
 
 classNames = []
-classFile = "/home/pi/Desktop/Object_Detection_Files/coco.names"
+classFile = "./Object_Detection_Files/coco.names"
 with open(classFile,"rt") as f:
     classNames = f.read().rstrip("\n").split("\n")
 
-configPath = "/home/pi/Desktop/Object_Detection_Files/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
-weightsPath = "/home/pi/Desktop/Object_Detection_Files/frozen_inference_graph.pb"
+configPath = "./Object_Detection_Files/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
+weightsPath = "./Object_Detection_Files/frozen_inference_graph.pb"
 
 net = cv2.dnn_DetectionModel(weightsPath,configPath)
 net.setInputSize(320,320)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     
     while True:
         success, img = cap.read()
-        result, objectInfo = getObjects(img,0.45,0.2, objects=['cup','horse'])
+        result, objectInfo = getObjects(img,0.45,0.2, objects=['cat','horse'])
         #print(objectInfo)
         
         

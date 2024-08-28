@@ -35,6 +35,12 @@ class BoxController():
         self.__initWaiting()
 
 
+    def shutDown(self):
+        Logger.log(LogType.BOX, 5, f"(func: shutDown, box: {self.__boxNum}) function invoked")
+        self.__servoController.shutDown()
+        self.__ultrasonicController.shutDown()
+
+
     # Function: needsCamera
     # Description: Returns whether or not the box needs the camera currently
     def needsCamera(self):
@@ -47,19 +53,18 @@ class BoxController():
     def process(self, catIdentified):
         Logger.log(LogType.BOX, 5, f"(func: process, box: {self.__boxNum} , args: (catIdentified: {catIdentified})) function invoked")
 
-        match self.__currentState:
-            case self.BoxState.WAITING:
-                self.__processWaiting(catIdentified)
-            case self.BoxState.OPENING:
-                self.__processOpening()
-            case self.BoxState.OPEN_INITIAL:
-                self.__processOpenInitial()
-            case self.BoxState.OPENED_MANUALLY:
-                self.__processOpennedManually()
-            case self.BoxState.OPEN:
-                self.__processOpen(catIdentified)
-            case self.BoxState.CLOSING:
-                self.__processClosing()
+        if self.__currentState == self.BoxState.WAITING:
+            self.__processWaiting(catIdentified)
+        elif self.__currentState == self.BoxState.OPENING:
+            self.__processOpening()
+        elif self.__currentState == self.BoxState.OPEN_INITIAL:
+            self.__processOpenInitial()
+        elif self.__currentState == self.BoxState.OPENED_MANUALLY:
+            self.__processOpennedManually()
+        elif self.__currentState == self.BoxState.OPEN:
+            self.__processOpen(catIdentified)
+        elif self.__currentState == self.BoxState.CLOSING:
+            self.__processClosing()
 
 
     # Function: initWaiting

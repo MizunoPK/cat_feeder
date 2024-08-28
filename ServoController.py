@@ -1,5 +1,6 @@
 from Config import Config
 from gpiozero import AngularServo
+from gpiozero.pins.pigpio import PiGPIOFactory
 import time
 import threading
 from Logger import Logger
@@ -14,6 +15,7 @@ from enum import Enum
 #       1: Box finishes opening/closing
 #       2: Open/close functions invoked
 #       3: getState results
+#       4: Errors
 #       5: All function invocations
 #       6: All rotate info
 class ServoController():
@@ -35,10 +37,11 @@ class ServoController():
             myCorrection=0.0
             maxPW=(2.5+myCorrection)/1000
             minPW=(0.5-myCorrection)/1000
+            my_factory = PiGPIOFactory() 
             
             # Save the Servo info
             gpio = Config.SERVO_GPIO_SLOTS[boxNum]
-            self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=180, min_pulse_width=minPW, max_pulse_width=maxPW)
+            self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=180, min_pulse_width=minPW, max_pulse_width=maxPW, pin_factory=my_factory)
         
         self.__state = self.State.CLOSED
 
@@ -97,34 +100,42 @@ class ServoController():
     # Function: rotate
     # Description: Use a thread to rotate the box to open/close
     def __rotate(self, event, opening):
-        Logger.log(LogType.SERVO, 5, f"(func: __rotate, box: {self.__boxNum}) function invoked")
+        try:
+            Logger.log(LogType.SERVO, 5, f"(func: __rotate, box: {self.__boxNum}) function invoked")
 
-        startAngle = self.__closeAngle if opening else self.__openAngle
-        endAngle = self.__openAngle if opening else self.__closeAngle
-        movementDir = -1 if self.__closeAngle == 180 else 1
-        if not opening:
-            movementDir*=-1
-        angleRange = range(startAngle, endAngle + movementDir, movementDir)
-        Logger.log(LogType.SERVO, 4, f"(func: __rotate, box: {self.__boxNum}) Range Data: Start: {startAngle}, End: {endAngle}, Dir: {movementDir}")
-        for angle in angleRange:
-            if Config.SERVOS_ACTIVE:
-                self.__servo.angle = angle
-            time.sleep(Config.SERVO_DELAY_SEC)
+            startAngle = self.__closeAngle if opening else self.__openAngle
+            endAngle = self.__openAngle if opening else self.__closeAngle
+            movementDir = -1 if self.__closeAngle == 180 else 1
+            if not opening:
+                movementDir*=-1
+            angleRange = range(startAngle, endAngle + movementDir, movementDir)
+            Logger.log(LogType.SERVO, 4, f"(func: __rotate, box: {self.__boxNum}) Range Data: Start: {startAngle}, End: {endAngle}, Dir: {movementDir}")
+            for angle in angleRange:
+                if Config.SERVOS_ACTIVE:
+                    self.__servo.angle = angle
+                time.sleep(Config.SERVO_DELAY_SEC)
 
-        newState = "OPEN" if opening else "CLOSED"
-        Logger.log(LogType.SERVO, 1, f"(func: __rotate, box: {self.__boxNum}) New State: {newState}")
+            newState = "OPEN" if opening else "CLOSED"
+            Logger.log(LogType.SERVO, 1, f"(func: __rotate, box: {self.__boxNum}) New State: {newState}")
 
-        event.set()
+            event.set()
+        except:
+            Logger.log(LogType.SERVO, 4, f"(func: __rotate, box: {self.__boxNum}) Error occurred when trying to rotate the servo - possibly due to program closing. Ending thread.")
 
 
 # FOR TESTING THIS CLASS SPECIFICALLY
 if __name__ == "__main__":
-    sc = ServoController(0)
-    sc.getState()
-    while True:
-        sc.open()
-        while sc.getState() != ServoController.State.OPEN:
-            time.sleep(0.25)
-        sc.close()
-        while sc.getState() != ServoController.State.CLOSED:
-            time.sleep(0.25)
+    try:
+        sc = ServoController(0)
+        sc.getState()
+        while True:
+            sc.open()
+            while sc.getState() != ServoController.State.OPEN:
+                time.sleep(0.25)
+            sc.close()
+            while sc.getState() != ServoController.State.CLOSED:
+                time.sleep(0.25)
+    except KeyboardInterrupt:  # Press ctrl-c to end the program.
+        sc.shutDown()
+        os.system("sudo killall pigpiod")
+        print("Ending program")

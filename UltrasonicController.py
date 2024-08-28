@@ -1,4 +1,5 @@
 from gpiozero import DistanceSensor
+from gpiozero.pins.pigpio import PiGPIOFactory
 from Config import Config
 from Logger import Logger
 from LogType import LogType
@@ -25,7 +26,13 @@ class UltrasonicController:
         trigPin = Config.ULTRASONIC_TRIG_PINS[boxNum]
         echoPin = Config.ULTRASONIC_ECHO_PINS[boxNum]
         if Config.ULTRASONIC_ACTIVE:
-            self.__sensor = DistanceSensor(echo=echoPin, trigger=trigPin, max_distance=1)
+            my_factory = PiGPIOFactory() 
+            self.__sensor = DistanceSensor(echo=echoPin, trigger=trigPin, max_distance=1, pin_factory=my_factory)
+
+
+    def shutDown(self):
+        Logger.log(LogType.ULTRASONIC, 5, f"(func: shutDown, box: {self.__boxNum}) function invoked")
+        self.__sensor.close()
 
 
     # Function: isDetectingObject
