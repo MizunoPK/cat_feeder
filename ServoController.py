@@ -6,6 +6,9 @@ import threading
 from Logger import Logger
 from LogType import LogType
 from enum import Enum
+import os
+os.system("sudo killall pigpiod")
+os.system("sudo pigpiod")
 
 # Class: ServoController
 # Description:

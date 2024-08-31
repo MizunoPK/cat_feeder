@@ -8,7 +8,7 @@
 from gpiozero import AngularServo
 import time
  
-myGPIO=18
+myGPIO=21
 SERVO_DELAY_SEC = 0.005 
 myCorrection=0.0
 maxPW=(2.5+myCorrection)/1000

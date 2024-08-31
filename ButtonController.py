@@ -71,5 +71,7 @@ if __name__ == "__main__":
     bc.setClickable(True)
     while not bc.isTurnedOn():
         sleep(0.25)
+    sleep(3)
+    bc.setClickable(True)
     while bc.isTurnedOn():
         sleep(0.25)

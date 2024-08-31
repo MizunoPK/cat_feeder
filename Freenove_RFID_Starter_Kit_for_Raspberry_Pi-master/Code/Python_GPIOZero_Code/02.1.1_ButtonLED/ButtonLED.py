@@ -7,8 +7,8 @@
 ########################################################################
 from gpiozero import LED, Button
 
-led = LED(4)       # define LED pin according to BCM Numbering
-button = Button(23) # define Button pin according to BCM Numbering
+led = LED(6)     # define LED pin according to BCM Numbering
+button = Button(5) # define Button pin according to BCM Numbering
 
 def loop():
     while True:
