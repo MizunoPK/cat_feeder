@@ -135,9 +135,11 @@ if __name__ == "__main__":
             sc.open()
             while sc.getState() != ServoController.State.OPEN:
                 time.sleep(0.25)
+            time.sleep(5)
             sc.close()
             while sc.getState() != ServoController.State.CLOSED:
                 time.sleep(0.25)
+            time.sleep(5)
     except KeyboardInterrupt:  # Press ctrl-c to end the program.
         sc.shutDown()
         os.system("sudo killall pigpiod")
