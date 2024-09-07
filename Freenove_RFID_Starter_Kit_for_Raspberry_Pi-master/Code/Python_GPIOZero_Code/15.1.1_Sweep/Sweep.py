@@ -9,7 +9,7 @@ from gpiozero import AngularServo
 import time
  
 myGPIO=21
-SERVO_DELAY_SEC = 0.005 
+SERVO_DELAY_SEC = 0.01
 myCorrection=0.0
 maxPW=(2.5+myCorrection)/1000
 minPW=(0.5-myCorrection)/1000
@@ -30,5 +30,6 @@ if __name__ == '__main__':     # Program entrance
     print ('Program is starting...')
     try:
         loop()
+        # servo.angle = 0
     except KeyboardInterrupt:  # Press ctrl-c to end the program.
         print("Ending program")

@@ -6,9 +6,6 @@ import threading
 from Logger import Logger
 from LogType import LogType
 from enum import Enum
-import os
-os.system("sudo killall pigpiod")
-os.system("sudo pigpiod")
 
 # Class: ServoController
 # Description:
@@ -34,8 +31,8 @@ class ServoController():
         Logger.log(LogType.SERVO, 5, f"(func: __init__, box: {self.__boxNum}) function invoked")
 
         # Set up info needed by servos
-        self.__closeAngle = 180 if Config.SERVO_SIDES[boxNum] == "L" else 0
-        self.__openAngle = 90
+        self.__closeAngle = 90
+        self.__openAngle = 0 if Config.SERVO_SIDES[boxNum] == "L" else 180
         if Config.SERVOS_ACTIVE:
             myCorrection=0.0
             maxPW=(2.5+myCorrection)/1000
@@ -44,7 +41,7 @@ class ServoController():
             
             # Save the Servo info
             gpio = Config.SERVO_GPIO_SLOTS[boxNum]
-            self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=180, min_pulse_width=minPW, max_pulse_width=maxPW, pin_factory=my_factory)
+            self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=270, min_pulse_width=minPW, max_pulse_width=maxPW, pin_factory=my_factory)
         
         self.__state = self.State.CLOSED
 
@@ -108,9 +105,7 @@ class ServoController():
 
             startAngle = self.__closeAngle if opening else self.__openAngle
             endAngle = self.__openAngle if opening else self.__closeAngle
-            movementDir = -1 if self.__closeAngle == 180 else 1
-            if not opening:
-                movementDir*=-1
+            movementDir = 1 if endAngle > startAngle else -1
             angleRange = range(startAngle, endAngle + movementDir, movementDir)
             Logger.log(LogType.SERVO, 4, f"(func: __rotate, box: {self.__boxNum}) Range Data: Start: {startAngle}, End: {endAngle}, Dir: {movementDir}")
             for angle in angleRange:
@@ -142,5 +137,4 @@ if __name__ == "__main__":
             time.sleep(5)
     except KeyboardInterrupt:  # Press ctrl-c to end the program.
         sc.shutDown()
-        os.system("sudo killall pigpiod")
         print("Ending program")
