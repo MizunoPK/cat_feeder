@@ -8,8 +8,8 @@
 from gpiozero import DistanceSensor
 from time import sleep
 
-trigPin = 20
-echoPin = 21
+trigPin = 22
+echoPin = 27
 sensor = DistanceSensor(echo=echoPin, trigger=trigPin ,max_distance=3)
 
 def loop():

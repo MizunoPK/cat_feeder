@@ -8,7 +8,7 @@
 from gpiozero import LED
 from time import sleep
 
-led = LED(17)           # define LED pin according to BCM Numbering
+led = LED(19)           # define LED pin according to BCM Numbering
 #led = LED("J8:11")     # BOARD Numbering
 '''
 # pins numbering, the following lines are all equivalent

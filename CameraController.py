@@ -20,8 +20,6 @@ class CameraController:
         Logger.log(LogType.CAMERA, 5, "(func: __init__) function invoked")
         # -- Set up Camera
         self.__cap = cv2.VideoCapture(0)
-        self.__cap.set(3,640)
-        self.__cap.set(4,480)
 
         # -- Set up Detector
         self.__classNames = []
@@ -58,6 +56,7 @@ class CameraController:
             success, img = self.__cap.read()
             if not success:
                 return
+            img = cv2.resize(img, (0,0), fx=Config.IMAGE_SCALE, fy=Config.IMAGE_SCALE)
         Logger.log(LogType.CAMERA, 3, "(func: checkCamera) New frame being processed...")
 
         # Detect cats
@@ -202,43 +201,6 @@ class CameraController:
 # FOR TESTING THIS CLASS SPECIFICALLY
 if __name__ == "__main__":
     cc = CameraController()
-
-    control = cv2.imread("cv/control.jpg")
-    bento = cv2.imread("cv/bento.jpg")
-    nori = cv2.imread("cv/nori.jpg")
-    both = cv2.imread("cv/both.jpg")
-    sequence = [both]
-    # sequence = [
-    #     control,
-    #     control,
-    #     bento,
-    #     bento,
-    #     nori,
-    #     bento,
-    #     bento,
-    #     bento,
-    #     bento,
-    #     control,
-    #     control,
-    #     bento,
-    #     bento,
-    #     bento,
-    #     bento,
-    #     bento,
-    #     bento,
-    #     control,
-    #     control,
-    #     control,
-    #     nori,
-    #     control,
-    #     control,
-    #     control,
-    #     control,
-    #     control,
-    #     control,
-    #     control,
-    # ]
-    
-    for readImg in sequence:
-        catsIdentified = cc.checkCamera(img=readImg)
+    while True:
+        catsIdentified = cc.checkCamera()
         Logger.log(LogType.CONTROL, 1, f"Cats indentified: {catsIdentified}")

@@ -31,8 +31,8 @@ class ServoController():
         Logger.log(LogType.SERVO, 5, f"(func: __init__, box: {self.__boxNum}) function invoked")
 
         # Set up info needed by servos
-        self.__closeAngle = 90
-        self.__openAngle = 0 if Config.SERVO_SIDES[boxNum] == "L" else 180
+        self.__closeAngle = 90 if Config.SERVO_SIDES[boxNum] == "L" else 135
+        self.__openAngle = 0 if Config.SERVO_SIDES[boxNum] == "L" else 225
         if Config.SERVOS_ACTIVE:
             myCorrection=0.0
             maxPW=(2.5+myCorrection)/1000
@@ -42,6 +42,7 @@ class ServoController():
             # Save the Servo info
             gpio = Config.SERVO_GPIO_SLOTS[boxNum]
             self.__servo =  AngularServo(gpio, initial_angle=self.__closeAngle, min_angle=0, max_angle=270, min_pulse_width=minPW, max_pulse_width=maxPW, pin_factory=my_factory)
+            self.__servo.angle = self.__closeAngle
         
         self.__state = self.State.CLOSED
 
@@ -124,17 +125,18 @@ class ServoController():
 # FOR TESTING THIS CLASS SPECIFICALLY
 if __name__ == "__main__":
     try:
-        sc = ServoController(0)
+        sc = ServoController(1)
         sc.getState()
-        while True:
-            sc.open()
-            while sc.getState() != ServoController.State.OPEN:
-                time.sleep(0.25)
-            time.sleep(5)
-            sc.close()
-            while sc.getState() != ServoController.State.CLOSED:
-                time.sleep(0.25)
-            time.sleep(5)
+        #while True:
+        sc.open()
+        while sc.getState() != ServoController.State.OPEN:
+            time.sleep(0.25)
+        time.sleep(5)
+        #break
+        sc.close()
+        while sc.getState() != ServoController.State.CLOSED:
+            time.sleep(0.25)
+        time.sleep(5)
     except KeyboardInterrupt:  # Press ctrl-c to end the program.
         sc.shutDown()
         print("Ending program")

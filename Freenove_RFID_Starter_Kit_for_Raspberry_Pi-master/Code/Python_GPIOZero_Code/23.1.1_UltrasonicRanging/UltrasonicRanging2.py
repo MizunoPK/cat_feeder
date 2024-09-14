@@ -11,8 +11,8 @@ from gpiozero import DistanceSensor
 from gpiozero.pins.pigpio import PiGPIOFactory
 from time import sleep
 
-trigPin = 23
-echoPin = 24
+trigPin = 24
+echoPin = 23
 my_factory = PiGPIOFactory() 
 sensor = DistanceSensor(echo=echoPin, trigger=trigPin ,max_distance=3,pin_factory=my_factory)
 

@@ -45,7 +45,7 @@ class UltrasonicController:
 
         if Config.ULTRASONIC_ACTIVE:
             distance = self.__sensor.distance * 100
-            objectDetected = (distance) <= Config.ULTRASONIC_MAX_DISTANCE
+            objectDetected = (distance) <= Config.ULTRASONIC_MAX_DISTANCE[self.__boxNum]
 
             Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
 
@@ -94,7 +94,7 @@ class UltrasonicController:
 
 
 if __name__ == "__main__":
-    uc = UltrasonicController(0)
+    uc = UltrasonicController(1)
     uc.resetDetecting()
     while True:
         uc.isDetectingObject()

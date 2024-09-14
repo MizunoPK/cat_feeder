@@ -17,7 +17,7 @@ def loop():
             print("Button is pressed, led turned on >>>") # print information on terminal 
         else : # if button is relessed
             led.off() # turn off led 
-            print("Button is released, led turned off <<<")    
+            #print("Button is released, led turned off <<<")    
 
 if __name__ == '__main__':     # Program entrance
     print ('Program is starting...')
