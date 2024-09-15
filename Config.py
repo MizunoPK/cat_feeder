@@ -26,7 +26,7 @@ class Config:
     SHOW_VIDEO = True # Whether or not to display the camera frames as they are read
     DRAW_ON_IMAGE = False # Whether or not to draw on the image
     STEP_THROUGH_VIDEO = False # Whether or not to step through the video or play it continuously
-    CAMERA_DETECTION_THRESHOLD = 0.65  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
+    CAMERA_DETECTION_THRESHOLD = 0.6  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
     CAT_EXPECTED_COLORS = [
         (76.15548150658283, 86.24959916710047, 96.65603224760979),
         (51.805574820151676, 51.54244241398648, 54.053270066447325),
