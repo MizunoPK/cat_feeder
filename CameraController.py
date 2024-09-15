@@ -53,10 +53,9 @@ class CameraController:
         Logger.log(LogType.CAMERA, 5, "(func: checkCamera) function invoked")
         if img is None:
             # Get an image from the camera
-            success, img = self.__cap.read()
-            if not success:
-                return
-            img = cv2.resize(img, (0,0), fx=Config.IMAGE_SCALE, fy=Config.IMAGE_SCALE)
+            img = self.getImageFromCamera()
+            if img is None:
+                return []
         Logger.log(LogType.CAMERA, 3, "(func: checkCamera) New frame being processed...")
 
         # Detect cats
@@ -93,6 +92,19 @@ class CameraController:
             if self.__trackingInfo[i] >= Config.FRAMES_FOR_CONFIRMATION:
                 catsIdentified.append(i)
         return catsIdentified
+
+
+    # Function: getImageFromCamera
+    # Description:
+    #       Fetch the current frame from the camera
+    def getImageFromCamera(self):
+        Logger.log(LogType.CAMERA, 5, "(Func: getImageFromCamera) function invoked")
+        success, img = self.__cap.read()
+        if not success:
+            Logger.log(LogType.CAMERA, 4, "(func: checkCamera) Error fetching image from camera....")
+            return None
+        img = cv2.resize(img, (0,0), fx=Config.IMAGE_SCALE, fy=Config.IMAGE_SCALE)
+        return img
 
 
     # Function: detectCat

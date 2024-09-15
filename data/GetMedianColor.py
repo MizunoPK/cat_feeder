@@ -1,6 +1,11 @@
 import os
 import cv2
 import statistics
+
+import sys
+module_dir = os.path.abspath('.')
+print(module_dir)
+sys.path.insert(0, module_dir)
 from CameraController import CameraController
 
 print("Loading...")
