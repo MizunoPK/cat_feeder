@@ -64,8 +64,8 @@ class CameraController:
         # Analyze any potential cats
         detectedCats = []
         for catInfo in objectInfo:
-            catColor = self.getAverageColor(img, catInfo[0])
-            catIndex = self.__getWhichCat(catColor)
+            (catColor, catGrayscale) = self.getAverageColor(img, catInfo[0])
+            catIndex = self.__getWhichCat(catColor, catGrayscale)
             if catIndex in detectedCats:
                 continue
             else:
@@ -145,7 +145,8 @@ class CameraController:
 
     # Function: getAverageColor
     # Description: given an image an a box where a cat was detected, 
-    #               determine the average bgr color of the area
+    #               determine the average color of the area
+    #           Returns a tuple for the average bgr value and greyscale value
     def getAverageColor(self, img, catBox):
         Logger.log(LogType.CAMERA, 5, "(Func: getAverageColor) function invoked")
         # Get the box info of what we want to scan
@@ -154,35 +155,39 @@ class CameraController:
         x = int(catBox[0] + (width / 2))
         y = int(catBox[1] + (width / 2))
 
-        # Get the average color
+        # Get the average bgr color
         roi = img[y:y + height, x:x + width]
-        average_color = cv2.mean(roi) 
-        average_color_bgr = average_color[:3]
+        average_color_bgr = cv2.mean(roi) 
+        average_color_bgr = average_color_bgr[:3]
+        gray_img = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        average_gray = np.mean(gray_img)
         
         if ( Config.SHOW_VIDEO and Config.DRAW_ON_IMAGE ):
             top_left = (x, y)
             bottom_right = (x + width, y + height)
             cv2.rectangle(img, top_left, bottom_right, color=(0,0,255), thickness=2)
 
-        return average_color_bgr
+        return (average_color_bgr, average_gray)
     
     
     # Function: getWhichCat
-    # Description: Determine which cat we're looking at based on the detected BGR color
-    def __getWhichCat(self, detectedColorBGR):
+    # Description: Determine which cat we're looking at based on the detected colors
+    def __getWhichCat(self, detectedColorBGR, detectedGrayscale):
         Logger.log(LogType.CAMERA, 5, "(Func: __getWhichCat) function invoked")
         # Get values for how different the detected color is from the expected colors
         colorDiffs = []
-        for expectedColorBGR in Config.CAT_EXPECTED_COLORS:
+        for i in range(len(Config.CAT_EXPECTED_COLORS)):
+            expectedColorBGR = Config.CAT_EXPECTED_COLORS[i]
             colorDiff = 0
-            for i in range(len(expectedColorBGR)):
-                colorDiff += abs(expectedColorBGR[i] - detectedColorBGR[i])
+            for j in range(len(expectedColorBGR)):
+                colorDiff += abs(expectedColorBGR[j] - detectedColorBGR[j])
+            colorDiff += abs( Config.CAT_EXPECTED_GRAYSCALE[i] - detectedGrayscale)
             colorDiffs.append(colorDiff)
 
         # Determine which was the closest match
-        closestMatchIndex = colorDiffs.index(min(colorDiffs))
+        bgrClosestMatchIndex = colorDiffs.index(min(colorDiffs))
 
-        return closestMatchIndex
+        return bgrClosestMatchIndex
     
     
     # Function: updateTrackingNumbers

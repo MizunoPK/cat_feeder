@@ -31,6 +31,10 @@ class Config:
         (76.15548150658283, 86.24959916710047, 96.65603224760979),
         (51.805574820151676, 51.54244241398648, 54.053270066447325),
     ] # Values found via GetMedianColorTool for what the expected colors of each cat are
+    CAT_EXPECTED_GRAYSCALE = [
+        117.20612696306127,
+        69.85845558563489,
+    ] # Values found via GetMedianColorTool for what the expected colors of each cat are
     FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a cat needs to be seen before assuming they are there
     FRAMES_FOR_CANCEL = 20 # Number of frames that a cat needs to not be detected before things get reset
     IMAGE_SCALE = 0.7 # how to scale the image we fetch from the camera
