@@ -23,7 +23,7 @@ class Config:
     BOX_GRACE_PERIOD = 5 # number of seconds to keep the box open before restarting detection efforts
 
     # --- CAMERA CONFIGURATION ---
-    SHOW_VIDEO = True # Whether or not to display the camera frames as they are read
+    SHOW_VIDEO = False # Whether or not to display the camera frames as they are read
     DRAW_ON_IMAGE = True # Whether or not to draw on the image
     STEP_THROUGH_VIDEO = False # Whether or not to step through the video or play it continuously
     CAMERA_DETECTION_THRESHOLD = 0.65  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
