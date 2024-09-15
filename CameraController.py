@@ -3,6 +3,9 @@ import numpy as np
 from Config import Config
 from Logger import Logger
 from LogType import LogType
+from pathlib import Path
+import os
+import datetime
 
 # Class: CameraController
 # Description:
@@ -91,6 +94,8 @@ class CameraController:
         for i in range(len(Config.CATS)):
             if self.__trackingInfo[i] >= Config.FRAMES_FOR_CONFIRMATION:
                 catsIdentified.append(i)
+                if Config.SAVE_IMAGES:
+                    self.__saveImage(img, i)
         return catsIdentified
 
 
@@ -105,6 +110,25 @@ class CameraController:
             return None
         img = cv2.resize(img, (0,0), fx=Config.IMAGE_SCALE, fy=Config.IMAGE_SCALE)
         return img
+
+
+    # Function: saveImage
+    # Description: Save the image we just used to identify the cat
+    def __saveImage(self, img, catNum):
+        Logger.log(LogType.CAMERA, 5, "(Func: __saveImage) function invoked")
+
+        # Get the directory
+        imgDir = Config.SAVED_IMG_DIRS[catNum]
+
+        # Create the dirs if need be
+        Path(imgDir).mkdir(parents=True, exist_ok=True)
+
+        # Save
+        current_time = datetime.datetime.now()
+        file_safe_time = current_time.strftime("%Y-%m-%d_%H-%M-%S.jpg")
+        file_path = os.path.join(imgDir, file_safe_time)
+        Logger.log(LogType.CAMERA, 1, "(Func: __saveImage) saving image to {file_path}")
+        cv2.imwrite(file_path, img)
 
 
     # Function: detectCat
