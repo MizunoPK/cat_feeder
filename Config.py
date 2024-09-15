@@ -26,14 +26,14 @@ class Config:
     SHOW_VIDEO = True # Whether or not to display the camera frames as they are read
     DRAW_ON_IMAGE = True # Whether or not to draw on the image
     STEP_THROUGH_VIDEO = False # Whether or not to step through the video or play it continuously
-    CAMERA_DETECTION_THRESHOLD = 0.5  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
+    CAMERA_DETECTION_THRESHOLD = 0.65  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
     CAT_EXPECTED_COLORS = [
-        (76.24038825720217, 89.1908922191514, 101.39967529554147),
-        (52.608725110231134, 53.92688031612082, 58.60149969408517),
+        (76.15548150658283, 86.24959916710047, 96.65603224760979),
+        (51.805574820151676, 51.54244241398648, 54.053270066447325),
     ] # Values found via GetMedianColorTool for what the expected colors of each cat are
-    FRAMES_FOR_CONFIRMATION = 5 # Number of frames that a cat needs to be seen before assuming they are there
-    FRAMES_FOR_CANCEL = 10 # Number of frames that a cat needs to not be detected before things get reset
-    IMAGE_SCALE = 0.5 # how to scale the image we fetch from the camera
+    FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a cat needs to be seen before assuming they are there
+    FRAMES_FOR_CANCEL = 20 # Number of frames that a cat needs to not be detected before things get reset
+    IMAGE_SCALE = 0.7 # how to scale the image we fetch from the camera
 
     # --- SERVO CONFIG ---
     SERVOS_ACTIVE = True # Whether or not servos are plugged in and useable
