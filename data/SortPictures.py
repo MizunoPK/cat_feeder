@@ -2,9 +2,9 @@ import os
 import cv2
 import shutil
 
-img_folder = "C:/code/cat_feeder/data/CatPics/unsorted"
-nori_folder = "C:/code/cat_feeder/data/CatPics/nori"
-bento_folder = "C:/code/cat_feeder/data/CatPics/bento"
+img_folder = "./data/CatPics/unsorted"
+nori_folder = "./data/CatPics/nori"
+bento_folder = "./data/CatPics/bento"
 
 img_list = os.listdir(img_folder)
 
