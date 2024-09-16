@@ -30,7 +30,8 @@ for directory in directories:
         file_path = os.path.join(directory, filename)
         if os.path.isfile(file_path):
             img = cv2.imread(file_path)
-            _, objectInfo = cameraController.detectCat(img)
+            img, objectInfo = cameraController.detectCat(img)
+            
             if len(objectInfo) > 0:
                 for cat in objectInfo:
                     (avg_bgr, avg_gray) = cameraController.getAverageColor(img, cat[0])
