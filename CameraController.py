@@ -6,6 +6,12 @@ from LogType import LogType
 from pathlib import Path
 import os
 import datetime
+from dotenv import load_dotenv, dotenv_values
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 # Class: CameraController
 # Description:
@@ -48,6 +54,9 @@ class CameraController:
         }
         for i in range(len(Config.CATS)):
             self.__trackingInfo[i] = 0
+
+        # Initialize env variables
+        load_dotenv()
 
 
     # Function: checkCamera:
@@ -94,8 +103,12 @@ class CameraController:
         for i in range(len(Config.CATS)):
             if self.__trackingInfo[i] >= Config.FRAMES_FOR_CONFIRMATION:
                 catsIdentified.append(i)
-                if Config.SAVE_IMAGES:
-                    self.__saveImage(img, i)
+
+                # Save & Email image
+                if Config.SAVE_IMAGES or Config.EMAIL_IMAGES:
+                    imgName = self.__saveImage(img, i)
+                    if Config.EMAIL_IMAGES:
+                        self.__emailImage(imgName, i)
         return catsIdentified
 
 
@@ -125,10 +138,65 @@ class CameraController:
 
         # Save
         current_time = datetime.datetime.now()
-        file_safe_time = current_time.strftime("%Y-%m-%d_%H-%M-%S.jpg")
+        file_safe_time = current_time.strftime(f"{Config.CATS[catNum]}-%Y-%m-%d_%H-%M-%S.jpg")
         file_path = os.path.join(imgDir, file_safe_time)
         Logger.log(LogType.CAMERA, 1, "(Func: __saveImage) saving image to {file_path}")
         cv2.imwrite(file_path, img)
+        return file_safe_time
+
+
+    # Function: emailImage
+    # Description: Email the image to the specified email
+    def emailImage(self, imgName, catNum):
+        Logger.log(LogType.CAMERA, 5, "(Func: __emailImage) function invoked")
+        smtp_port = 587                 # Standard secure SMTP port
+        smtp_server = "smtp.gmail.com"  # Google SMTP Server
+        pswd = os.getenv("GOOGLE_PASS")
+        subject = f"Cat Feeder - {imgName}"
+        body = ""
+
+        # make a MIME object to define parts of the email
+        msg = MIMEMultipart()
+        msg['From'] = Config.EMAIL
+        msg['To'] = Config.EMAIL
+        msg['Subject'] = subject
+
+        # Attach the body of the message
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Define the file to attach
+        filename = os.path.join(Config.SAVED_IMG_DIRS[catNum], imgName)
+
+        # Open the file in python as a binary
+        attachment= open(filename, 'rb')  # r for read and b for binary
+
+        # Encode as base 64
+        attachment_package = MIMEBase('application', 'octet-stream')
+        attachment_package.set_payload((attachment).read())
+        encoders.encode_base64(attachment_package)
+        attachment_package.add_header('Content-Disposition', "attachment; filename= " + filename)
+        msg.attach(attachment_package)
+
+        # Cast as string
+        text = msg.as_string()
+
+        # Connect with the server
+        TIE_server = smtplib.SMTP(smtp_server, smtp_port)
+        TIE_server.starttls()
+        TIE_server.login(Config.EMAIL, pswd)
+
+        # Send emails to "person" as list is iterated
+        TIE_server.sendmail(Config.EMAIL, Config.EMAIL, text)
+
+        Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) Email sent to {Config.EMAIL} with image {imgName}")
+
+        # Close the port
+        TIE_server.quit()
+
+        # If we aren't saving images, then delete the image we just sent
+        if not Config.SAVE_IMAGES:
+            os.remove(filename)
+            Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) {imgName} Deleted")
 
 
     # Function: detectCat
@@ -242,6 +310,7 @@ class CameraController:
 # FOR TESTING THIS CLASS SPECIFICALLY
 if __name__ == "__main__":
     cc = CameraController()
-    while True:
-        catsIdentified = cc.checkCamera()
-        Logger.log(LogType.CONTROL, 1, f"Cats indentified: {catsIdentified}")
+    # while True:
+    #     catsIdentified = cc.checkCamera()
+    #     Logger.log(LogType.CONTROL, 1, f"Cats indentified: {catsIdentified}")
+    cc.emailImage("bento.jpg", 1)

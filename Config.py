@@ -40,6 +40,8 @@ class Config:
     IMAGE_SCALE = 0.7 # how to scale the image we fetch from the camera
     SAVE_IMAGES = True # whether or not to save images upon identification
     SAVED_IMG_DIRS = ["./data/CatPics/nori", "./data/CatPics/bento"] # Where to save images if we are saving
+    EMAIL_IMAGES = True
+    EMAIL = "Mizuno.PK@gmail.com"
 
     # --- SERVO CONFIG ---
     SERVOS_ACTIVE = True # Whether or not servos are plugged in and useable
