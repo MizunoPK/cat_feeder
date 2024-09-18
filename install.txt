@@ -1,2 +1,5 @@
 sudo apt install python3-opencv
+pip install numpy
 pip install python-dotenv
+pip install scikit-learn
+pip install scikit-image

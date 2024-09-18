@@ -17,8 +17,10 @@ cameraController = CameraController()
 #              Copy this value over to the Config file's CAT_EXPECTED_COLORS 
 #               variable to use when determining which cat is which
 directories = ['./data/CatPics/nori', './data/CatPics/bento']
-final_bgr_medians = []
-final_gray_medians = []
+
+# (y=gray)
+# Format from 1 Dir: [(bgry avg), (bgry med), (bgry max), (bgry min)]
+final_data = []
 
 for directory in directories:
     blue = []
@@ -42,14 +44,20 @@ for directory in directories:
 
                 print(f'{file_path} - {avg_bgr} - {avg_gray}')
 
+                cv2.imshow("img", img)
+                cv2.waitKey(0)
 
-    bgr_medians = ( statistics.median(blue), statistics.median(green), statistics.median(red)  )
-    gray_median = statistics.median(gray)
 
-    final_bgr_medians.append(bgr_medians)
-    final_gray_medians.append(gray_median)
+    bgry_avg = ( statistics.mean(blue), statistics.mean(green), statistics.mean(red), statistics.mean(gray) )
+    bgry_medians = ( statistics.median(blue), statistics.median(green), statistics.median(red), statistics.median(gray) )
+    bgry_max = ( max(blue), max(green), max(red), max(gray) )
+    bgry_min = ( min(blue), min(green), min(red), min(gray) )
 
-for i in range(len(final_bgr_medians)):
+    final_data.append([bgry_avg, bgry_medians, bgry_max, bgry_min])
+
+for i in range(len(final_data)):
     print("")
-    print(f'{directories[i]} - FINAL BGR MEDIAN: {final_bgr_medians[i]}')
-    print(f'{directories[i]} - FINAL GRAY MEDIAN: {final_gray_medians[i]}')
+    print(f'{directories[i]} - FINAL BGRY MEAN: {final_data[i][0]}')
+    print(f'{directories[i]} - FINAL BGRY MEDIAN: {final_data[i][1]}')
+    print(f'{directories[i]} - FINAL BGRY MAX: {final_data[i][2]}')
+    print(f'{directories[i]} - FINAL BGRY MIN: {final_data[i][3]}')

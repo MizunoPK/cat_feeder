@@ -244,8 +244,8 @@ class CameraController:
         # Get the box info of what we want to scan
         width = int(catBox[2] / 2)
         height = int(catBox[3] / 2)
-        x = int(catBox[0] + (width / 2))
-        y = int(catBox[1] + (width / 2))
+        x = int(catBox[0] + (width / 4))
+        y = int(catBox[1] + (height / 4))
 
         # Get the average bgr color
         roi = img[y:y + height, x:x + width]
@@ -253,6 +253,11 @@ class CameraController:
         average_color_bgr = average_color_bgr[:3]
         gray_img = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         average_gray = np.mean(gray_img)
+
+        # img_processed = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        # img_processed = np.invert(img_processed)
+        # cv2.imshow("img", img_processed)
+        # cv2.waitKey(0)
         
         if ( Config.SHOW_VIDEO and Config.DRAW_ON_IMAGE ):
             top_left = (x, y)
