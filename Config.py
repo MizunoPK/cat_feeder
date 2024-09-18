@@ -37,8 +37,8 @@ class Config:
     ] # Values found via GetMedianColorTool for what the expected colors of each cat are
     FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a cat needs to be seen before assuming they are there
     FRAMES_FOR_CANCEL = 20 # Number of frames that a cat needs to not be detected before things get reset
-    IMAGE_SCALE = 0.7 # how to scale the image we fetch from the camera
-    SAVE_IMAGES = True # whether or not to save images upon identification
+    IMAGE_SCALE = 0.25 # how to scale the image we fetch from the camera
+    SAVE_IMAGES = False # whether or not to save images upon identification
     SAVED_IMG_DIRS = ["./data/CatPics/nori", "./data/CatPics/bento"] # Where to save images if we are saving
     EMAIL_IMAGES = True
     EMAIL = "Mizuno.PK@gmail.com"
