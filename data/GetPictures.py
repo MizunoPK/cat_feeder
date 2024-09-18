@@ -12,7 +12,7 @@ from CameraController import CameraController
 from pathlib import Path
 
 
-NUM_CATS = 2 # number of cats to be in frame for a pic to be taken
+NUM_CATS = 0 # number of cats to be in frame for a pic to be taken
 WAIT_TIME = 3 # seconds to wait between shots
 PICS_TO_TAKE = 5
 picsTaken = 0
