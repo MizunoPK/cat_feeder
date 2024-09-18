@@ -7,7 +7,7 @@ with open('./data/model.p', 'rb') as file:
     loaded_model = pickle.load(file)
 
 # Load and preprocess the image (e.g., resize to 28x28 pixels and convert to grayscale if necessary)
-image = io.imread('./data/CatPics/bento_orig/2024-09-16_12-45-56.jpg')
+image = io.imread('./data/CatPics/unsorted/2024-09-18_12-20-00.jpg')
 image_resized =  transform.rescale(image, (.25/.7))
 
 # Flatten the image to match the input shape expected by the SVC model

@@ -121,7 +121,7 @@ class CameraController:
         if not success:
             Logger.log(LogType.CAMERA, 4, "(func: checkCamera) Error fetching image from camera....")
             return None
-        img = cv2.resize(img, (0,0), fx=Config.IMAGE_SCALE, fy=Config.IMAGE_SCALE)
+        # img = cv2.resize(img, (0,0), fx=Config.IMAGE_SCALE, fy=Config.IMAGE_SCALE)
         return img
 
 
