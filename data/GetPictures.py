@@ -15,7 +15,7 @@ from CameraController import CameraController
 from pathlib import Path
 
 WAIT_TIME = 1 # seconds to wait between shots
-PICS_TO_TAKE = 200
+PICS_TO_TAKE = 100
 
 with open('./data/model.p', 'rb') as file:
     loaded_model = pickle.load(file)
