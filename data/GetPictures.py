@@ -65,7 +65,9 @@ while True:
     # if there was 1 cat there, id the cat then save
     elif len(objectInfo) == 1:
         old_resizing = cv2.resize(img, (0,0), fx=0.7, fy=0.7)
-        image_resized =  transform.rescale(old_resizing, (.25/.7))
+        cv2.imwrite("temp.jpg", old_resizing)
+        scikitImg = io.imread("temp.jpg")
+        image_resized =  transform.rescale(scikitImg, (.25/.7))
         image_flattened = image_resized.flatten()
         image_for_model = np.array([image_flattened])
         prediction = loaded_model.predict(image_for_model)
@@ -77,5 +79,6 @@ while True:
             img = cv2.resize(img, (0,0), fx=0.25, fy=0.25)
             writeImg(bento_folder, img)
             bento_pics_taken+=1
+        os.remove("temp.jpg")
     
     time.sleep(WAIT_TIME)
