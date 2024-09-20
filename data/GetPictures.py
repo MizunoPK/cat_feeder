@@ -12,10 +12,10 @@ from CameraController import CameraController
 from pathlib import Path
 
 WAIT_TIME = 1 # seconds to wait between shots
-UNSORTED_PICS_TO_TAKE = 0
-SORTED_PICS_TO_TAKE = 200
+UNSORTED_PICS_TO_TAKE = 300
+SORTED_PICS_TO_TAKE = 0
 
-unsorted_folder = "./data/CatPics/unsorted"
+unsorted_folder = "./data/CatPics/nori"
 both_folder = "./data/CatPics/both"
 none_folder = "./data/CatPics/none"
 Path(unsorted_folder).mkdir(parents=True, exist_ok=True)
