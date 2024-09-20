@@ -3,6 +3,7 @@ __pycache__
 .env
 data/model.p
 feeder
+.venv
 package.json
 package-lock.json
 data/CatPics

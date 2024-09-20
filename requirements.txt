@@ -1,0 +1,5 @@
+numpy==1.26.4
+opencv-python==4.3.0.38
+scikit-learn==1.5.2
+scikit-image==0.19.3
+python-dotenv==1.0.1
