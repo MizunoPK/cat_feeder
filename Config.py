@@ -37,6 +37,7 @@ class Config:
     IMAGE_SCALE = 0.6 # how to scale the image we fetch from the camera
     SAVE_IMAGES = False # whether or not to save images upon identification
     SAVED_IMG_DIRS = ["./data/CatPics/nori", "./data/CatPics/bento"] # Where to save images if we are saving
+    MAX_IMGS = 100 # the maximum number of images to save - will delete the oldest once this is reached
     EMAIL_IMAGES = True
     EMAIL = "Mizuno.PK@gmail.com"
 

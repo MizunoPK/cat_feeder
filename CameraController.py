@@ -131,6 +131,13 @@ class CameraController:
         # Create the dirs if need be
         Path(imgDir).mkdir(parents=True, exist_ok=True)
 
+        # Delete the oldest image if we've reached the cap
+        imgs = os.listdir(imgDir)
+        if len(imgs) >= Config.MAX_IMGS:
+            imgs_full_path = [os.path.join(imgDir, f) for f in imgs if os.path.isfile(os.path.join(imgDir, f))]
+            oldest_file = min(imgs_full_path, key=os.path.getctime)
+            os.remove(oldest_file)
+
         # Save
         current_time = datetime.datetime.now()
         file_safe_time = current_time.strftime(f"{Config.CATS[catNum]}-%Y-%m-%d_%H-%M-%S.jpg")
