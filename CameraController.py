@@ -82,8 +82,12 @@ class CameraController:
             Logger.log(LogType.CAMERA, 2, f"(func: checkCamera) Cat Detected: {Config.CATS[catIndex]} --- Color: {catColors}")
         
         # Update tracking info
+        savedImgName = None
         for idx in range(len(Config.CATS)):
-            self.__updateTrackingNumbers(idx, idx in detectedCats)
+            catSeen = idx in detectedCats
+            self.__updateTrackingNumbers(idx, catSeen)
+            if catSeen and Config.SAVE_IMAGES:
+                savedImgName = self.__saveImage(img, idx)
         if len(objectInfo) == 0:
             Logger.log(LogType.CAMERA, 3, f"(func: checkCamera) No Cat Detected")
 
@@ -99,11 +103,11 @@ class CameraController:
             if self.__trackingInfo[i][0] >= Config.FRAMES_FOR_CONFIRMATION:
                 catsIdentified.append(i)
 
-                # Save & Email image
-                if Config.SAVE_IMAGES or Config.EMAIL_IMAGES:
-                    imgName = self.__saveImage(img, i)
-                    if Config.EMAIL_IMAGES:
-                        self.__emailImage(imgName, i)
+                # Email image
+                if Config.EMAIL_IMAGES:
+                    if savedImgName is None:
+                        savedImgName = self.__saveImage(img, i)
+                    self.__emailImage(savedImgName, i)
         return catsIdentified
 
 
@@ -121,7 +125,7 @@ class CameraController:
 
 
     # Function: saveImage
-    # Description: Save the image we just used to identify the cat
+    # Description: Save the image we just used to identify the cat, returns the img name
     def __saveImage(self, img, catNum):
         Logger.log(LogType.CAMERA, 5, "(Func: __saveImage) function invoked")
 
@@ -133,10 +137,11 @@ class CameraController:
 
         # Delete the oldest image if we've reached the cap
         imgs = os.listdir(imgDir)
-        if len(imgs) >= Config.MAX_IMGS:
-            imgs_full_path = [os.path.join(imgDir, f) for f in imgs if os.path.isfile(os.path.join(imgDir, f))]
-            oldest_file = min(imgs_full_path, key=os.path.getctime)
-            os.remove(oldest_file)
+        if not (not Config.SAVE_IMAGES and Config.EMAIL_IMAGES):
+            if len(imgs) >= Config.MAX_IMGS:
+                imgs_full_path = [os.path.join(imgDir, f) for f in imgs if os.path.isfile(os.path.join(imgDir, f))]
+                oldest_file = min(imgs_full_path, key=os.path.getctime)
+                os.remove(oldest_file)
 
         # Save
         current_time = datetime.datetime.now()
@@ -147,9 +152,9 @@ class CameraController:
         return file_safe_time
 
 
-    # Function: emailImage
+    # Function: __emailImage
     # Description: Email the image to the specified email
-    def emailImage(self, imgName, catNum):
+    def __emailImage(self, imgName, catNum):
         Logger.log(LogType.CAMERA, 5, "(Func: __emailImage) function invoked")
         smtp_port = 587                 # Standard secure SMTP port
         smtp_server = "smtp.gmail.com"  # Google SMTP Server
@@ -344,7 +349,6 @@ class CameraController:
 # FOR TESTING THIS CLASS SPECIFICALLY
 if __name__ == "__main__":
     cc = CameraController()
-    # while True:
-    #     catsIdentified = cc.checkCamera()
-    #     Logger.log(LogType.CONTROL, 1, f"Cats indentified: {catsIdentified}")
-    cc.emailImage("bento.jpg", 1)
+    while True:
+        catsIdentified = cc.checkCamera()
+        Logger.log(LogType.CONTROL, 1, f"Cats indentified: {catsIdentified}")
