@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 # Prepare data
 print("Preparing Data...")
 input_dir = "./data/CatPics"
-categories = ["nori_orig", "bento_orig"]
+categories = ["nori", "bento"]
 
 data = []
 labels = []
@@ -19,7 +19,7 @@ for category_idx, category in enumerate(categories):
     for file in os.listdir(os.path.join(input_dir, category)):
         img_path = os.path.join(input_dir, category, file)
         img = imread(img_path)
-        img = rescale(img, (.25/.7))
+        # img = rescale(img, (.25/.7))
         img_flat = img.flatten()
         try:
             np.asarray([img_flat])
@@ -56,4 +56,4 @@ score = accuracy_score(y_prediction, y_test)
 
 print('{}% of samples were correctly classified'.format(str(score * 100)))
 
-pickle.dump(best_estimator, open('./model.p', 'wb'))
+pickle.dump(best_estimator, open('./data/model.p', 'wb'))

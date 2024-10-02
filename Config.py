@@ -28,16 +28,13 @@ class Config:
     STEP_THROUGH_VIDEO = False # Whether or not to step through the video or play it continuously
     CAMERA_DETECTION_THRESHOLD = 0.6  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
     CAT_EXPECTED_COLORS = [
-        (76.15548150658283, 86.24959916710047, 96.65603224760979),
-        (51.805574820151676, 51.54244241398648, 54.053270066447325),
-    ] # Values found via GetMedianColorTool for what the expected colors of each cat are
-    CAT_EXPECTED_GRAYSCALE = [
-        117.20612696306127,
-        69.85845558563489,
-    ] # Values found via GetMedianColorTool for what the expected colors of each cat are
+        (76.15548150658283, 86.24959916710047, 96.65603224760979, 117.20612696306127),
+        (51.805574820151676, 51.54244241398648, 54.053270066447325, 69.8584555856348),
+    ] # Values found via GetMedianColorTool for what the expected colors of each cat are - this is (blue, green, red, gray)
+    GRAY_UPPER_THRESHOLD = 160 # The upper limit of gray values to accept - anything higher does not contribute to the average color calculations, assuming it is part of white backgrounds
     FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a cat needs to be seen before assuming they are there
     FRAMES_FOR_CANCEL = 20 # Number of frames that a cat needs to not be detected before things get reset
-    IMAGE_SCALE = 0.25 # how to scale the image we fetch from the camera
+    IMAGE_SCALE = 0.6 # how to scale the image we fetch from the camera
     SAVE_IMAGES = False # whether or not to save images upon identification
     SAVED_IMG_DIRS = ["./data/CatPics/nori", "./data/CatPics/bento"] # Where to save images if we are saving
     EMAIL_IMAGES = True

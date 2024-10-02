@@ -18,7 +18,6 @@ class BoxController():
     class BoxState(Enum):
         WAITING = "WAITING"
         OPENING = "OPENING"
-        OPEN_INITIAL = "OPEN IN GRACE PERIOD"
         OPEN = "OPEN"
         OPENED_MANUALLY = "OPENNED MANUALLY"
         CLOSING = "CLOSING"
@@ -44,7 +43,7 @@ class BoxController():
     # Function: needsCamera
     # Description: Returns whether or not the box needs the camera currently
     def needsCamera(self):
-        return self.__currentState == self.BoxState.WAITING or self.__currentState == self.BoxState.OPEN
+        return self.__currentState == self.BoxState.WAITING
 
 
     # Function: process
@@ -57,14 +56,14 @@ class BoxController():
             self.__processWaiting(catIdentified)
         elif self.__currentState == self.BoxState.OPENING:
             self.__processOpening()
-        elif self.__currentState == self.BoxState.OPEN_INITIAL:
-            self.__processOpenInitial()
         elif self.__currentState == self.BoxState.OPENED_MANUALLY:
             self.__processOpennedManually()
         elif self.__currentState == self.BoxState.OPEN:
             self.__processOpen(catIdentified)
         elif self.__currentState == self.BoxState.CLOSING:
-            self.__processClosing()
+            return self.__processClosing()
+
+        return False
 
 
     # Function: initWaiting
@@ -74,6 +73,7 @@ class BoxController():
         Logger.log(LogType.BOX, 1, f"(func: __initWaiting, box: {self.__boxNum}) Setting to WAITING state")
         self.__currentState = self.BoxState.WAITING
         self.__buttonController.setClickable(True)
+        return True
 
     # Function: processWaiting
     # Description: Process the WAITING state
@@ -89,7 +89,7 @@ class BoxController():
     # Description: init the Opening state
     def __initOpening(self):
         Logger.log(LogType.BOX, 5, f"(func: __initOpening, box: {self.__boxNum}) function invoked")
-        Logger.log(LogType.BOX, 1, f"(func: __initWaiting, box: {self.__boxNum}) Setting to OPENNING state")
+        Logger.log(LogType.BOX, 1, f"(func: __initOpening, box: {self.__boxNum}) Setting to OPENNING state")
 
         self.__currentState = self.BoxState.OPENING
         self.__servoController.open()
@@ -105,42 +105,16 @@ class BoxController():
             # If the Button was pressed - then go to the OPENNED_MANUALLY state
             if self.__buttonController.isTurnedOn():
                 self.__initOpennedManually()
-            # Otherwise, go to the OPEN_INITIAL state
+            # Otherwise, go to the OPEN state
             else:
-                self.__initOpenInitial()
-
-
-    # Function: initOpenInitial
-    # Description: init the OpeningInitial state
-    def __initOpenInitial(self):
-        Logger.log(LogType.BOX, 5, f"(func: __initOpenInitial, box: {self.__boxNum}) function invoked")
-        Logger.log(LogType.BOX, 1, f"(func: __initWaiting, box: {self.__boxNum}) Setting to OPEN_INITIAL state")
-
-        self.__currentState = self.BoxState.OPEN_INITIAL
-        self.__buttonController.setClickable(True)
-        self.__openInitialStartTime = time.perf_counter()
-
-
-    # Function: processOpenInitial
-    # Description: Process the OPEN_INITIAL state
-    def __processOpenInitial(self):
-        Logger.log(LogType.BOX, 5, f"(func: __processOpenInitial, box: {self.__boxNum}) function invoked")
-
-        # If the button is pressed during this time, switch to OPENNED_MANUALLY
-        if self.__buttonController.isTurnedOn():
-            self.__initOpennedManually()
-
-        # Once the cooldown finishes, then go to OPEN
-        elif (time.perf_counter() - self.__openInitialStartTime) >= Config.BOX_GRACE_PERIOD:
-            self.__initOpen()
+                self.__initOpen()
             
-
 
     # Function: initOpen
     # Description: init the Open state
     def __initOpen(self):
         Logger.log(LogType.BOX, 5, f"(func: __initOpen, box: {self.__boxNum}) function invoked")
-        Logger.log(LogType.BOX, 1, f"(func: __initWaiting, box: {self.__boxNum}) Setting to OPEN state")
+        Logger.log(LogType.BOX, 1, f"(func: __initOpen, box: {self.__boxNum}) Setting to OPEN state")
 
         self.__currentState = self.BoxState.OPEN
         self.__buttonController.setClickable(True)
@@ -156,9 +130,9 @@ class BoxController():
         if self.__buttonController.isTurnedOn():
             self.__initOpennedManually()
 
-        # If the cat is not longer identified, and there is nothing detected by the ultrasonic, 
+        # If there is nothing detected by the ultrasonic, 
         # then close the box
-        elif (not catIdentified) and (not self.__ultrasonicController.isDetectingObject()):
+        elif not self.__ultrasonicController.isDetectingObject():
             self.__initClosing()
 
 
@@ -167,7 +141,7 @@ class BoxController():
     # Description: init the OPENNED_MANUALLY state
     def __initOpennedManually(self):
         Logger.log(LogType.BOX, 5, f"(func: __initOpennedManually, box: {self.__boxNum}) function invoked")
-        Logger.log(LogType.BOX, 1, f"(func: __initWaiting, box: {self.__boxNum}) Setting to OPENNED_MANUALLY state")
+        Logger.log(LogType.BOX, 1, f"(func: __initOpennedManually, box: {self.__boxNum}) Setting to OPENNED_MANUALLY state")
 
         self.__currentState = self.BoxState.OPENED_MANUALLY
         self.__buttonController.setClickable(True)
@@ -187,7 +161,7 @@ class BoxController():
     # Description: init the Closing state
     def __initClosing(self):
         Logger.log(LogType.BOX, 5, f"(func: __initClosing, box: {self.__boxNum}) function invoked")
-        Logger.log(LogType.BOX, 1, f"(func: __initWaiting, box: {self.__boxNum}) Setting to CLOSING state")
+        Logger.log(LogType.BOX, 1, f"(func: __initClosing, box: {self.__boxNum}) Setting to CLOSING state")
 
         self.__currentState = self.BoxState.CLOSING
         self.__buttonController.setClickable(False)
@@ -201,4 +175,5 @@ class BoxController():
 
         # When we finish closing - go to the WAITING state
         if self.__servoController.getState() == ServoController.State.CLOSED:
-            self.__initWaiting()
+            return self.__initWaiting()
+        return False

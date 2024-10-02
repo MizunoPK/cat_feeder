@@ -36,13 +36,13 @@ for directory in directories:
             
             if len(objectInfo) > 0:
                 for cat in objectInfo:
-                    (avg_bgr, avg_gray) = cameraController.getAverageColor(img, cat[0])
-                    blue.append(avg_bgr[0])
-                    green.append(avg_bgr[1])
-                    red.append(avg_bgr[2])
-                    gray.append(avg_gray)
+                    avgColors = cameraController.getAverageColor(img, cat[0])
+                    blue.append(avgColors[0])
+                    green.append(avgColors[1])
+                    red.append(avgColors[2])
+                    gray.append(avgColors[3])
 
-                print(f'{file_path} - {avg_bgr} - {avg_gray}')
+                print(f'{file_path} - {avgColors}')
 
                 cv2.imshow("img", img)
                 cv2.waitKey(0)

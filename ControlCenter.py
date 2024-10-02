@@ -41,7 +41,10 @@ class ControlCenter:
             # Process each box
             for catNum in range(len(Config.CATS)):
                 catIdentified = catNum in catsIdentified
-                self.__boxes[catNum].process(catIdentified)
+                resetCamera = self.__boxes[catNum].process(catIdentified)
+
+                if resetCamera:
+                    self.__cameraController.resetCatTracking(catNum)
 
     
     # Function: shutDown

@@ -46,14 +46,10 @@ class CameraController:
         self.__net.setInputSwapRB(True)
 
         # -- Set up tracking info
-        # Map used for tracking how many frames a result has been seen
-        # -1 means that no cats are present
-        # index values for each cat are added to track how many frames has seen each cat
-        self.__trackingInfo = {
-            -1: 0
-        }
-        for i in range(len(Config.CATS)):
-            self.__trackingInfo[i] = 0
+        # Each idx in the array is a cat represented by [framesSeen, framesNotSeen]
+        self.__trackingInfo = []
+        for _ in Config.CATS:
+            self.__trackingInfo.append([0,0])
 
         # Initialize env variables
         load_dotenv()
@@ -76,20 +72,19 @@ class CameraController:
         # Analyze any potential cats
         detectedCats = []
         for catInfo in objectInfo:
-            (catColor, catGrayscale) = self.getAverageColor(img, catInfo[0])
-            catIndex = self.__getWhichCat(catColor, catGrayscale)
+            catColors = self.getAverageColor(img, catInfo[0])
+            catIndex = self.__getWhichCat(catColors)
             if catIndex in detectedCats:
                 continue
             else:
                 detectedCats.append(catIndex)
 
-            Logger.log(LogType.CAMERA, 2, f"(func: checkCamera) Cat Detected: {Config.CATS[catIndex]} --- Color: {catColor}")
-
-            self.__updateTrackingNumbers(catIndex)
+            Logger.log(LogType.CAMERA, 2, f"(func: checkCamera) Cat Detected: {Config.CATS[catIndex]} --- Color: {catColors}")
         
-        # Note if we did not find any cats
+        # Update tracking info
+        for idx in range(len(Config.CATS)):
+            self.__updateTrackingNumbers(idx, idx in detectedCats)
         if len(objectInfo) == 0:
-            self.__updateTrackingNumbers(-1)
             Logger.log(LogType.CAMERA, 3, f"(func: checkCamera) No Cat Detected")
 
         # Display the video
@@ -101,7 +96,7 @@ class CameraController:
         # Return which cats have been identified
         catsIdentified = []
         for i in range(len(Config.CATS)):
-            if self.__trackingInfo[i] >= Config.FRAMES_FOR_CONFIRMATION:
+            if self.__trackingInfo[i][0] >= Config.FRAMES_FOR_CONFIRMATION:
                 catsIdentified.append(i)
 
                 # Save & Email image
@@ -247,38 +242,54 @@ class CameraController:
         x = int(catBox[0] + (width / 4))
         y = int(catBox[1] + (height / 4))
 
-        # Get the average bgr color
-        roi = img[y:y + height, x:x + width]
-        average_color_bgr = cv2.mean(roi) 
-        average_color_bgr = average_color_bgr[:3]
-        gray_img = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-        average_gray = np.mean(gray_img)
+        # Crop the image to just what is seen as the cat
+        cropped_img = img[y:y + height, x:x + width]
 
-        # img_processed = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-        # img_processed = np.invert(img_processed)
-        # cv2.imshow("img", img_processed)
-        # cv2.waitKey(0)
-        
+        # Get the grayscale values of each pixel
+        gray_img = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+
+        # Go through each pixel, and only consider the ones that are above the gray threshold
+        height, width, _ = cropped_img.shape
+        compiled_colors = [[0,0], [0,0], [0,0], [0,0]] # [sum, num] for bgr+gray
+        for y in range(height):
+            for x in range(width):
+                gray = gray_img[y, x]
+                if gray > Config.GRAY_UPPER_THRESHOLD:
+                    continue
+
+                blue, green, red = cropped_img[y, x]
+                new_vals = [blue, green, red, gray]
+                for idx, val in enumerate(new_vals):
+                    compiled_colors[idx][0] += val
+                    compiled_colors[idx][1] += 1
+                
+
+        # Compute the final avg values
+        avg_colors = (0,0,0,0)
+        for idx, val in enumerate(compiled_colors):
+            if compiled_colors[idx][1] > 0:
+                avg_colors[idx] = compiled_colors[idx][0] / compiled_colors[idx][1]
+
+        # We can now draw over the image with a box over the cat area if needed
         if ( Config.SHOW_VIDEO and Config.DRAW_ON_IMAGE ):
             top_left = (x, y)
             bottom_right = (x + width, y + height)
             cv2.rectangle(img, top_left, bottom_right, color=(0,0,255), thickness=2)
 
-        return (average_color_bgr, average_gray)
+        return avg_colors
     
     
     # Function: getWhichCat
     # Description: Determine which cat we're looking at based on the detected colors
-    def __getWhichCat(self, detectedColorBGR, detectedGrayscale):
+    def __getWhichCat(self, detectedColors):
         Logger.log(LogType.CAMERA, 5, "(Func: __getWhichCat) function invoked")
         # Get values for how different the detected color is from the expected colors
         colorDiffs = []
         for i in range(len(Config.CAT_EXPECTED_COLORS)):
-            expectedColorBGR = Config.CAT_EXPECTED_COLORS[i]
+            expectedColors = Config.CAT_EXPECTED_COLORS[i]
             colorDiff = 0
-            for j in range(len(expectedColorBGR)):
-                colorDiff += abs(expectedColorBGR[j] - detectedColorBGR[j])
-            colorDiff += abs( Config.CAT_EXPECTED_GRAYSCALE[i] - detectedGrayscale)
+            for j in range(len(expectedColors)):
+                colorDiff += abs(expectedColors[j] - detectedColors[j])
             colorDiffs.append(colorDiff)
 
         # Determine which was the closest match
@@ -289,27 +300,38 @@ class CameraController:
     
     # Function: updateTrackingNumbers
     # Description: based on what was just detected, update the tracking numbers
-    def __updateTrackingNumbers(self, eventNum):
-        Logger.log(LogType.CAMERA, 5, "(Func: __updateTrackingNumbers) function invoked")
-        self.__trackingInfo[eventNum] += 1
+    def __updateTrackingNumbers(self, catIdx, catSeen):
+        Logger.log(LogType.CAMERA, 5, f"(Func: __updateTrackingNumbers) function invoked - catIdx={catIdx}, catSeen={catSeen}")
+        if catSeen:
+            self.__trackingInfo[catIdx][0] += 1
+        else:
+            self.__trackingInfo[catIdx][1] += 1
         
         # If a cat has been detected, then reset the NoCat event
         # If a cat has been identified, then reset the NoCat event
-        if eventNum >= 0 and (self.__trackingInfo[eventNum] == 1 or self.__trackingInfo[eventNum] == Config.FRAMES_FOR_CONFIRMATION):
-            self.__trackingInfo[-1] = 0
+        if catSeen and (self.__trackingInfo[catIdx][0] == 1 or self.__trackingInfo[catIdx][0] == Config.FRAMES_FOR_CONFIRMATION):
+            self.__trackingInfo[catIdx][1] = 0
 
         # If the NoCat event goes through, then reset the Cat events
-        elif self.__trackingInfo[-1] == Config.FRAMES_FOR_CANCEL:
-            for i in range(len(Config.CATS)):
-                self.__trackingInfo[i] = 0
-            Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) Cats have not been detected in {Config.FRAMES_FOR_CONFIRMATION} frames -- resetting...')
+        elif self.__trackingInfo[catIdx][1] == Config.FRAMES_FOR_CANCEL:
+            self.resetCatTracking(catIdx)
+            Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) Cat {catIdx} not been detected in {Config.FRAMES_FOR_CONFIRMATION} frames -- resetting...')
 
 
-        if self.__trackingInfo[eventNum] == Config.FRAMES_FOR_CONFIRMATION and eventNum != -1:
-            Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) {Config.CATS[eventNum]} IDENTIFIED')
+        if self.__trackingInfo[catIdx][0] == Config.FRAMES_FOR_CONFIRMATION:
+            Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) {Config.CATS[catIdx]} IDENTIFIED')
                 
 
         Logger.log(LogType.CAMERA, 3, f'(Func: __updateTrackingNumbers) Tracking State: {self.__trackingInfo}')
+
+
+    # Function: resetCatTracking
+    # Description: resets the tracking info for the given cat
+    def resetCatTracking(self, catIdx):
+        Logger.log(LogType.CAMERA, 5, f"(Func: resetCatTracking) function invoked - catIdx={catIdx}")
+        
+        self.__trackingInfo[catIdx][0] = 0
+        self.__trackingInfo[catIdx][1] = 0
 
 
 # FOR TESTING THIS CLASS SPECIFICALLY
