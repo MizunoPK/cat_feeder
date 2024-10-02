@@ -59,7 +59,7 @@ class BoxController():
         elif self.__currentState == self.BoxState.OPENED_MANUALLY:
             self.__processOpennedManually()
         elif self.__currentState == self.BoxState.OPEN:
-            self.__processOpen(catIdentified)
+            self.__processOpen()
         elif self.__currentState == self.BoxState.CLOSING:
             return self.__processClosing()
 
@@ -123,8 +123,8 @@ class BoxController():
 
     # Function: processOpen
     # Description: Process the Open state
-    def __processOpen(self, catIdentified):
-        Logger.log(LogType.BOX, 5, f"(func: __processOpen, box: {self.__boxNum} , args: (catIdentified: {catIdentified})) function invoked")
+    def __processOpen(self):
+        Logger.log(LogType.BOX, 5, f"(func: __processOpen, box: {self.__boxNum} function invoked")
 
         # If the button is pressed, then go to the OPENNED_MANUALLY state
         if self.__buttonController.isTurnedOn():
