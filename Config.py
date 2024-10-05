@@ -52,7 +52,7 @@ class Config:
     ULTRASONIC_TRIG_PINS = [21, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
     ULTRASONIC_ECHO_PINS = [20, 23] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
     ULTRASONIC_MAX_DISTANCE = [20, 25] # Maximum distance we check for - measured in cm
-    ULTRASONIC_COOLDOWN = 5 # seconds until we've decided the cat has definitely left
+    ULTRASONIC_COOLDOWN = 15 # seconds until we've decided the cat has definitely left
 
     # --- BUTTON CONFIG ---
     BUTTON_PIN = [5, 13] # GPIO pin for button

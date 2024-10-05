@@ -5,3 +5,4 @@ scikit-image==0.19.3
 python-dotenv==1.0.1
 gpiozero==1.6.2
 pigpio==1.78
+rpi.gpio==0.7.1

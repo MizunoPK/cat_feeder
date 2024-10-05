@@ -12,10 +12,10 @@ from CameraController import CameraController
 from pathlib import Path
 
 WAIT_TIME = 1 # seconds to wait between shots
-UNSORTED_PICS_TO_TAKE = 300
+UNSORTED_PICS_TO_TAKE = 1000
 SORTED_PICS_TO_TAKE = 0
 
-unsorted_folder = "./data/CatPics/nori"
+unsorted_folder = "./data/CatPics/unsorted"
 both_folder = "./data/CatPics/both"
 none_folder = "./data/CatPics/none"
 Path(unsorted_folder).mkdir(parents=True, exist_ok=True)
@@ -46,6 +46,9 @@ while True:
     if img is None:
         continue
     _, objectInfo = cameraController.detectCat(img)
+    
+    cv2.imshow("img", img)
+    cv2.waitKey(1)
 
     # If no cat was there or 2 cats, resize and save
     if len(objectInfo) == 0 and not doneWithPics(none_folder):
