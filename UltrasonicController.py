@@ -89,8 +89,8 @@ class UltrasonicController:
     # Description: Set things up to start detecting as box opens
     def resetDetecting(self):
         Logger.log(LogType.ULTRASONIC, 4, f"(func: isDetectingObject, box: {self.__boxNum}) function invoked")
-        self.__detectingSomething = False
-        self.__cooldownStartTime = None
+        self.__detectingSomething = True
+        self.__cooldownStartTime = self.__cooldownStartTime = time.perf_counter()
 
 
 if __name__ == "__main__":
