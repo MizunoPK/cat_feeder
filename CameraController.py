@@ -332,7 +332,7 @@ class CameraController:
         # If the NoCat event goes through, then reset the Cat events
         elif self.__trackingInfo[catIdx][1] == Config.FRAMES_FOR_CANCEL:
             self.resetCatTracking(catIdx)
-            Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) Cat {catIdx} not been detected in {Config.FRAMES_FOR_CONFIRMATION} frames -- resetting...')
+            Logger.log(LogType.CAMERA, 1, f'(Func: __updateTrackingNumbers) Cat {catIdx} not been detected in {Config.FRAMES_FOR_CANCEL} frames -- resetting...')
 
 
         if self.__trackingInfo[catIdx][0] == Config.FRAMES_FOR_CONFIRMATION:

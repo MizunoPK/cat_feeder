@@ -13,7 +13,7 @@ class Config:
     LOG_LEVELS = {
         LogType.CONTROL: 1,
         LogType.BOX: 1,
-        LogType.CAMERA: 2,
+        LogType.CAMERA: 3,
         LogType.SERVO: 2,
         LogType.ULTRASONIC: 3,
         LogType.BUTTON: 1
