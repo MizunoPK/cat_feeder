@@ -19,7 +19,8 @@ from email import encoders
 # Logs:
 #   1: Cat Identified
 #   2: Cat Detected
-#   3: All tracking logs
+#   3: All tracking data
+#   4: All tracking logs
 #   5: All function invocations
 class CameraController:
 
@@ -66,7 +67,7 @@ class CameraController:
             img = self.getImageFromCamera()
             if img is None:
                 return []
-        Logger.log(LogType.CAMERA, 3, "(func: checkCamera) New frame being processed...")
+        Logger.log(LogType.CAMERA, 5, "(func: checkCamera) New frame being processed...")
 
         # Detect cats
         img, objectInfo = self.detectCat(img)
@@ -92,7 +93,7 @@ class CameraController:
                 if catSeen and Config.SAVE_IMAGES:
                     savedImgName = self.__saveImage(img, idx)
         if len(objectInfo) == 0:
-            Logger.log(LogType.CAMERA, 3, f"(func: checkCamera) No Cat Detected")
+            Logger.log(LogType.CAMERA, 4, f"(func: checkCamera) No Cat Detected")
 
         # Display the video
         if Config.SHOW_VIDEO:
