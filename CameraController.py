@@ -87,9 +87,10 @@ class CameraController:
         savedImgName = None
         for idx in range(len(Config.CATS)):
             catSeen = idx in detectedCats
-            self.__updateTrackingNumbers(idx, catSeen)
-            if catSeen and Config.SAVE_IMAGES:
-                savedImgName = self.__saveImage(img, idx)
+            if catSeen or (not catSeen and self.__trackingInfo[idx][0] > 0):
+                self.__updateTrackingNumbers(idx, catSeen)
+                if catSeen and Config.SAVE_IMAGES:
+                    savedImgName = self.__saveImage(img, idx)
         if len(objectInfo) == 0:
             Logger.log(LogType.CAMERA, 3, f"(func: checkCamera) No Cat Detected")
 

@@ -33,7 +33,7 @@ class Config:
     ] # Values found via GetMedianColorTool for what the expected colors of each cat are - this is (blue, green, red, gray)
     GRAY_UPPER_THRESHOLD = 160 # The upper limit of gray values to accept - anything higher does not contribute to the average color calculations, assuming it is part of white backgrounds
     FRAMES_FOR_CONFIRMATION = 15 # Number of frames that a cat needs to be seen before assuming they are there
-    FRAMES_FOR_CANCEL = 25 # Number of frames that a cat needs to not be detected before things get reset
+    FRAMES_FOR_CANCEL = 8 # Number of frames that a cat needs to not be detected before things get reset
     IMAGE_SCALE = 0.6 # how to scale the image we fetch from the camera
     SAVE_IMAGES = False # whether or not to save images upon identification
     SAVED_IMG_DIRS = ["./data/CatPics/nori", "./data/CatPics/bento"] # Where to save images if we are saving
