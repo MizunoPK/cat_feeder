@@ -48,8 +48,10 @@ class CameraController:
         # -- Set up tracking info
         # Each idx in the array is a cat represented by [framesSeen, framesNotSeen]
         self.__trackingInfo = []
+        self.__emailSent = [] # track when we send emails so we don't send duplicates after a cat has been identified
         for _ in Config.CATS:
             self.__trackingInfo.append([0,0])
+            self.__emailSent.append(False)
 
         # Initialize env variables
         load_dotenv()
@@ -99,15 +101,15 @@ class CameraController:
 
         # Return which cats have been identified
         catsIdentified = []
-        for i in range(len(Config.CATS)):
-            if self.__trackingInfo[i][0] >= Config.FRAMES_FOR_CONFIRMATION:
-                catsIdentified.append(i)
+        for catIdx in range(len(Config.CATS)):
+            if self.__trackingInfo[catIdx][0] >= Config.FRAMES_FOR_CONFIRMATION:
+                catsIdentified.append(catIdx)
 
                 # Email image
-                if Config.EMAIL_IMAGES:
+                if Config.EMAIL_IMAGES and not self.__emailSent[catIdx]:
                     if savedImgName is None:
-                        savedImgName = self.__saveImage(img, i)
-                    self.__emailImage(savedImgName, i)
+                        savedImgName = self.__saveImage(img, catIdx)
+                    self.__emailImage(savedImgName, catIdx)
         return catsIdentified
 
 
@@ -204,6 +206,9 @@ class CameraController:
         if not Config.SAVE_IMAGES:
             os.remove(filename)
             Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) {imgName} Deleted")
+
+        # Flag that we sent an email for this cat
+        self.__emailSent[catNum] = True
 
 
     # Function: detectCat
@@ -344,6 +349,7 @@ class CameraController:
         
         self.__trackingInfo[catIdx][0] = 0
         self.__trackingInfo[catIdx][1] = 0
+        self.__emailSent[catIdx] = False
 
 
 # FOR TESTING THIS CLASS SPECIFICALLY
