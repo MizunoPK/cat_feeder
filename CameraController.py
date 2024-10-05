@@ -272,12 +272,12 @@ class CameraController:
                 blue, green, red = cropped_img[y, x]
                 new_vals = [blue, green, red, gray]
                 for idx, val in enumerate(new_vals):
-                    compiled_colors[idx][0] += val
+                    compiled_colors[idx][0] += float(val)
                     compiled_colors[idx][1] += 1
                 
 
         # Compute the final avg values
-        avg_colors = (0,0,0,0)
+        avg_colors = [0,0,0,0]
         for idx, val in enumerate(compiled_colors):
             if compiled_colors[idx][1] > 0:
                 avg_colors[idx] = compiled_colors[idx][0] / compiled_colors[idx][1]

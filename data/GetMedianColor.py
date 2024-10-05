@@ -44,8 +44,8 @@ for directory in directories:
 
                 print(f'{file_path} - {avgColors}')
 
-                cv2.imshow("img", img)
-                cv2.waitKey(0)
+                # cv2.imshow("img", img)
+                # cv2.waitKey(0)
 
 
     bgry_avg = ( statistics.mean(blue), statistics.mean(green), statistics.mean(red), statistics.mean(gray) )
