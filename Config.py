@@ -28,11 +28,11 @@ class Config:
     STEP_THROUGH_VIDEO = False # Whether or not to step through the video or play it continuously
     CAMERA_DETECTION_THRESHOLD = 0.6  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
     CAT_EXPECTED_COLORS = [
-        (50.17433207710885, 51.934087165428174, 58.34037871234033, 53.64360966880825),
-        (27.75704668865186, 24.434116272008524, 30.86516604265306, 26.73071870510751),
-    ] # Values found via GetMedianColorTool for what the expected colors of each cat are - this is (blue, green, red, gray)
-    GRAY_UPPER_THRESHOLD = 160 # The upper limit of gray values to accept - anything higher does not contribute to the average color calculations, assuming it is part of white backgrounds
-    FRAMES_FOR_CONFIRMATION = 15 # Number of frames that a cat needs to be seen before assuming they are there
+        (46.75774108930497, 47.79274923514965, 54.61361001807428),
+        (28.48359059950839, 24.071343196237837, 32.13578723482561),
+    ] # Values found via GetMedianColorTool for what the expected colors of each cat are - this is (blue, green, red)
+    WHITE_UPPER_THRESHOLD = 145 # The upper limit of colors values to accept - anything higher does not contribute to the average color calculations, assuming it is part of white backgrounds
+    FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a cat needs to be seen before assuming they are there
     FRAMES_FOR_CANCEL = 8 # Number of frames that a cat needs to not be detected before things get reset
     IMAGE_SCALE = 0.6 # how to scale the image we fetch from the camera
     SAVE_IMAGES = False # whether or not to save images upon identification
@@ -51,7 +51,8 @@ class Config:
     ULTRASONIC_ACTIVE = True # Whether or not the sensors are plugged in and ready
     ULTRASONIC_TRIG_PINS = [21, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
     ULTRASONIC_ECHO_PINS = [20, 23] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
-    ULTRASONIC_MAX_DISTANCE = [20, 25] # Maximum distance we check for - measured in cm
+    ULTRASONIC_DETECTED_RANGE = [[5, 20], [5, 28]] # Specifies the distance range we expect for if a cat is feeding
+    ULTRASONIC_UNDETECTED_RANGE = [[21, 24], [29, 32]] # Specifies the distance range we expect the ultrasonic to be getting values in when no cat is present
     ULTRASONIC_COOLDOWN = 15 # seconds until we've decided the cat has definitely left
 
     # --- BUTTON CONFIG ---

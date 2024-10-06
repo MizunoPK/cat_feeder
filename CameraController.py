@@ -76,7 +76,7 @@ class CameraController:
         detectedCats = []
         for catInfo in objectInfo:
             catColors = self.getAverageColor(img, catInfo[0])
-            catIndex = self.__getWhichCat(catColors)
+            catIndex = self.getWhichCat(catColors)
             if catIndex in detectedCats:
                 continue
             else:
@@ -253,7 +253,7 @@ class CameraController:
     # Description: given an image an a box where a cat was detected, 
     #               determine the average color of the area
     #           Returns a tuple for the average bgr value and greyscale value
-    def getAverageColor(self, img, catBox):
+    def getAverageColor(self, img, catBox, whiteUpperThreshold=Config.WHITE_UPPER_THRESHOLD):
         Logger.log(LogType.CAMERA, 5, "(Func: getAverageColor) function invoked")
         # Get the box info of what we want to scan
         width = int(catBox[2] / 2)
@@ -264,27 +264,25 @@ class CameraController:
         # Crop the image to just what is seen as the cat
         cropped_img = img[y:y + height, x:x + width]
 
-        # Get the grayscale values of each pixel
-        gray_img = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
-
-        # Go through each pixel, and only consider the ones that are above the gray threshold
+        # Go through each pixel, and only consider the ones that are above the white threshold
         height, width, _ = cropped_img.shape
-        compiled_colors = [[0,0], [0,0], [0,0], [0,0]] # [sum, num] for bgr+gray
+        compiled_colors = [[0,0], [0,0], [0,0]] # [sum, num] for bgr
         for y in range(height):
             for x in range(width):
-                gray = gray_img[y, x]
-                if gray > Config.GRAY_UPPER_THRESHOLD:
+                blue, green, red = cropped_img[y, x]
+
+                # If the color seems white enough - skip it and assume it's part of the background
+                if float(blue) > whiteUpperThreshold and float(green) > whiteUpperThreshold and float(red) > whiteUpperThreshold:
                     continue
 
-                blue, green, red = cropped_img[y, x]
-                new_vals = [blue, green, red, gray]
+                new_vals = [blue, green, red]
                 for idx, val in enumerate(new_vals):
                     compiled_colors[idx][0] += float(val)
                     compiled_colors[idx][1] += 1
                 
 
         # Compute the final avg values
-        avg_colors = [0,0,0,0]
+        avg_colors = [0,0,0]
         for idx, val in enumerate(compiled_colors):
             if compiled_colors[idx][1] > 0:
                 avg_colors[idx] = compiled_colors[idx][0] / compiled_colors[idx][1]
@@ -300,12 +298,12 @@ class CameraController:
     
     # Function: getWhichCat
     # Description: Determine which cat we're looking at based on the detected colors
-    def __getWhichCat(self, detectedColors):
-        Logger.log(LogType.CAMERA, 5, "(Func: __getWhichCat) function invoked")
+    def getWhichCat(self, detectedColors, savedCatColors=Config.CAT_EXPECTED_COLORS):
+        Logger.log(LogType.CAMERA, 5, "(Func: getWhichCat) function invoked")
         # Get values for how different the detected color is from the expected colors
         colorDiffs = []
-        for i in range(len(Config.CAT_EXPECTED_COLORS)):
-            expectedColors = Config.CAT_EXPECTED_COLORS[i]
+        for i in range(len(savedCatColors)):
+            expectedColors = savedCatColors[i]
             colorDiff = 0
             for j in range(len(expectedColors)):
                 colorDiff += abs(expectedColors[j] - detectedColors[j])

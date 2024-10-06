@@ -45,9 +45,27 @@ class UltrasonicController:
 
         if Config.ULTRASONIC_ACTIVE:
             distance = self.__sensor.distance * 100
-            objectDetected = (distance) <= Config.ULTRASONIC_MAX_DISTANCE[self.__boxNum]
 
-            Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
+            # Determine if a cat has been detected
+            if self.__isInRange(distance, Config.ULTRASONIC_DETECTED_RANGE[self.__boxNum]):
+                Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
+                objectDetected = True
+            # Determine if a cat is undetected
+            elif self.__isInRange(distance, Config.ULTRASONIC_UNDETECTED_RANGE[self.__boxNum]):
+                Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
+                objectDetected = False
+            # If neither of the above worked, then we had a bad reading and should assume that a cat was seen
+            else:
+                Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- BAD DATA --- ASSUMING CAT WAS SEEN")
+                objectDetected = True
+
+
+            # If a cat was detected while in cooldown - reset cooldown
+            if objectDetected and not isOffCooldown:
+                Logger.log(LogType.ULTRASONIC, 2, f"(func: isDetectingObject, box: {self.__boxNum})  Cat was detected during cooldown - resetting cooldown...")
+                self.__cooldownStartTime = None
+                return self.__detectingSomething
+            
 
             # Determine if we have changed in detecting something
             if objectDetected != self.__detectingSomething:
@@ -68,7 +86,15 @@ class UltrasonicController:
                     self.__cooldownStartTime = None
 
         return self.__detectingSomething
-    
+
+
+    # Function: __isInRange
+    # Description: Returns whether or not the given distance measurement is within the given range
+    def __isInRange(self, dist, range):
+        Logger.log(LogType.ULTRASONIC, 4, f"(func: __isInRange, box: {self.__boxNum}, parms: dist={dist}, range={range}) function invoked")
+        return (dist >= range[0]) and (dist <= range[1])
+
+
     # Function: isOffCooldown
     # Description: returns boolean whether or not we are no longer in cooldown
     def __isOffCooldown(self):
