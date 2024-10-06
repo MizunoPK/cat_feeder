@@ -48,12 +48,14 @@ class UltrasonicController:
 
             # Determine if a cat has been detected
             if self.__isInRange(distance, Config.ULTRASONIC_DETECTED_RANGE[self.__boxNum]):
-                Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
                 objectDetected = True
+                Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
+
             # Determine if a cat is undetected
             elif self.__isInRange(distance, Config.ULTRASONIC_UNDETECTED_RANGE[self.__boxNum]):
-                Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
                 objectDetected = False
+                Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- Object Detected = {objectDetected}")
+                
             # If neither of the above worked, then we had a bad reading and should assume that a cat was seen
             else:
                 Logger.log(LogType.ULTRASONIC, 3, f"(func: isDetectingObject, box: {self.__boxNum}) Distance measured: {distance} cm --- BAD DATA --- ASSUMING CAT WAS SEEN")
