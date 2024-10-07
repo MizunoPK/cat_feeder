@@ -45,6 +45,8 @@ while True:
     img = cameraController.getImageFromCamera()
     if img is None:
         continue
+    writeImg(none_folder, img)
+    break
     _, objectInfo = cameraController.detectCat(img)
     
     cv2.imshow("img", img)
