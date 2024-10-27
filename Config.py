@@ -37,9 +37,9 @@ class Config:
     FRAMES_FOR_WRONG_SIDE = 5 # Number of frames a cat can be detected on the wrong side before it closes that side
     CAT_SIDES = [1, 0] # From left to right on which part of the frame is dedicated to that cat
     IMAGE_SCALE = 0.6 # how to scale the image we fetch from the camera
-    SAVE_IMAGES = False # whether or not to save images upon identification
+    SAVE_IMAGES = True # whether or not to save images upon detection
     SAVED_IMG_DIRS = ["./data/CatPics/nori", "./data/CatPics/bento"] # Where to save images if we are saving
-    MAX_IMGS = 300 # the maximum number of images to save - will delete the oldest once this is reached
+    MAX_IMGS = 2000 # the maximum number of images to save - will delete the oldest once this is reached
     EMAIL_IMAGES = True
     EMAIL = "Mizuno.PK@gmail.com"
 

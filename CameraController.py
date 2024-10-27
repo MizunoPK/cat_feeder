@@ -132,7 +132,7 @@ class CameraController:
                 catsIdentified.append(catIdx)
 
                 # Email image
-                if Config.EMAIL_IMAGES and not self.__emailSent[catIdx]:
+                if Config.EMAIL_IMAGES and (not self.__emailSent[catIdx]):
                     if savedImgName is None:
                         savedImgName = self.__saveImage(img, catIdx)
                     self.__emailImage(savedImgName, catIdx)
