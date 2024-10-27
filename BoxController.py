@@ -13,6 +13,7 @@ from ButtonController import ButtonController
 #               Manages the ServoController and UltrasonicController
 # Logs:
 #   1: State updates
+#   2: Open info
 #   5: All function invocations 
 class BoxController():
     class BoxState(Enum):
@@ -125,6 +126,8 @@ class BoxController():
     # Description: Process the Open state
     def __processOpen(self, catIdentified):
         Logger.log(LogType.BOX, 5, f"(func: __processOpen, box: {self.__boxNum} function invoked")
+        detectionResult = self.__ultrasonicController.isDetectingObject()
+        Logger.log(LogType.BOX, 2, f"(func: __processOpen, box: {self.__boxNum}, catIdentified={catIdentified}), detectionResult={detectionResult}")
 
         # If the button is pressed, then go to the OPENNED_MANUALLY state
         if self.__buttonController.isTurnedOn():
@@ -132,7 +135,7 @@ class BoxController():
 
         # If there is nothing detected by the ultrasonic, 
         # then close the box
-        elif not self.__ultrasonicController.isDetectingObject() or not catIdentified:
+        elif (not detectionResult) or (not catIdentified):
             self.__initClosing()
 
 

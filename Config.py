@@ -12,7 +12,7 @@ class Config:
     # --- LOGGER CONFIGURATION ---
     LOG_LEVELS = {
         LogType.CONTROL: 2,
-        LogType.BOX: 1,
+        LogType.BOX: 2,
         LogType.CAMERA: 3,
         LogType.SERVO: 2,
         LogType.ULTRASONIC: 4,
