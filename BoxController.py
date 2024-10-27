@@ -59,7 +59,7 @@ class BoxController():
         elif self.__currentState == self.BoxState.OPENED_MANUALLY:
             self.__processOpennedManually()
         elif self.__currentState == self.BoxState.OPEN:
-            self.__processOpen()
+            self.__processOpen(catIdentified)
         elif self.__currentState == self.BoxState.CLOSING:
             return self.__processClosing()
 
@@ -123,7 +123,7 @@ class BoxController():
 
     # Function: processOpen
     # Description: Process the Open state
-    def __processOpen(self):
+    def __processOpen(self, catIdentified):
         Logger.log(LogType.BOX, 5, f"(func: __processOpen, box: {self.__boxNum} function invoked")
 
         # If the button is pressed, then go to the OPENNED_MANUALLY state
@@ -132,7 +132,7 @@ class BoxController():
 
         # If there is nothing detected by the ultrasonic, 
         # then close the box
-        elif not self.__ultrasonicController.isDetectingObject():
+        elif not self.__ultrasonicController.isDetectingObject() or not catIdentified:
             self.__initClosing()
 
 

@@ -28,12 +28,14 @@ class Config:
     STEP_THROUGH_VIDEO = False # Whether or not to step through the video or play it continuously
     CAMERA_DETECTION_THRESHOLD = 0.6  # threshold to detect an object - this is how confident on a scale of 0-1 that the found object is a cat
     CAT_EXPECTED_COLORS = [
-        (46.75774108930497, 47.79274923514965, 54.61361001807428),
-        (28.48359059950839, 24.071343196237837, 32.13578723482561),
+        (62.51615658347859, 64.68580829555114, 69.48178318545365),
+        (24.338584474885845, 22.1349884683218, 27.106227106227106),
     ] # Values found via GetMedianColorTool for what the expected colors of each cat are - this is (blue, green, red)
-    WHITE_UPPER_THRESHOLD = 145 # The upper limit of colors values to accept - anything higher does not contribute to the average color calculations, assuming it is part of white backgrounds
+    WHITE_UPPER_THRESHOLD = 180 # The upper limit of colors values to accept - anything higher does not contribute to the average color calculations, assuming it is part of white backgrounds
     FRAMES_FOR_CONFIRMATION = 10 # Number of frames that a cat needs to be seen before assuming they are there
     FRAMES_FOR_CANCEL = 8 # Number of frames that a cat needs to not be detected before things get reset
+    FRAMES_FOR_WRONG_SIDE = 5 # Number of frames a cat can be detected on the wrong side before it closes that side
+    CAT_SIDES = [1, 0] # From left to right on which part of the frame is dedicated to that cat
     IMAGE_SCALE = 0.6 # how to scale the image we fetch from the camera
     SAVE_IMAGES = False # whether or not to save images upon identification
     SAVED_IMG_DIRS = ["./data/CatPics/nori", "./data/CatPics/bento"] # Where to save images if we are saving
@@ -53,7 +55,7 @@ class Config:
     ULTRASONIC_ECHO_PINS = [20, 23] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
     ULTRASONIC_DETECTED_RANGE = [[5, 28], [5, 28]] # Specifies the distance range we expect for if a cat is feeding
     ULTRASONIC_UNDETECTED_RANGE = [[29, 32], [29, 32]] # Specifies the distance range we expect the ultrasonic to be getting values in when no cat is present
-    ULTRASONIC_COOLDOWN = 15 # seconds until we've decided the cat has definitely left
+    ULTRASONIC_COOLDOWN = 5 # seconds until we've decided the cat has definitely left
 
     # --- BUTTON CONFIG ---
     BUTTON_PIN = [5, 13] # GPIO pin for button

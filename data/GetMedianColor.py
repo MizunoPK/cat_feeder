@@ -18,10 +18,12 @@ cameraController = CameraController()
 #              Copy this value over to the Config file's CAT_EXPECTED_COLORS 
 #               variable to use when determining which cat is which
 directories = ['./data/CatPics/nori', './data/CatPics/bento']
-TRAINING_PROPORTION = 0.7
-STARTING_WHITE = 70
+TRAINING_PROPORTION = 0.2
+STARTING_WHITE = 180
 ENDING_WHITE = 200
-INCREMENT = 5
+WHITE_INCREMENT = 2
+
+COLOR_RANGE = 5 # How far above and below the avg color to test
 
 
 def getColors(dir, file, whiteVal):
@@ -49,15 +51,19 @@ for dir in directories:
     trainingSets.append(trainingList)
     testingSets.append(testingList)
 
-whiteVals = {}
+bestWhite = 0
+bestBgr = None
+bestAccuracies = [0,0]
 
-for whiteVal in range(STARTING_WHITE, ENDING_WHITE, INCREMENT):
+# Loop through the White values, getting data for each
+for whiteVal in range(STARTING_WHITE, ENDING_WHITE, WHITE_INCREMENT):
 
     # Format from 1 Dir: [(bgr avg), (bgr med), (bgr max), (bgr min)]
-    final_data = []
+    median_data = []
 
     print(f"WHITE={whiteVal} TRAINING...")
 
+    # Get Color data for each dir
     for dirIdx, directory in enumerate(directories):
         blue = []
         green = []
@@ -72,72 +78,64 @@ for whiteVal in range(STARTING_WHITE, ENDING_WHITE, INCREMENT):
 
                 # print(f'{directory} - {filename} - {avgColors}')
 
-
-        bgr_avg = [ statistics.mean(blue), statistics.mean(green), statistics.mean(red) ]
         bgr_medians = [ statistics.median(blue), statistics.median(green), statistics.median(red) ]
-        bgr_max = [ max(blue), max(green), max(red) ]
-        bgr_min = [ min(blue), min(green), min(red) ]
 
-        final_data.append([bgr_avg, bgr_medians, bgr_max, bgr_min])
+        median_data.append(bgr_medians)
 
-    for i in range(len(final_data)):
-        print(f'{directories[i]} - FINAL BGRY MEAN: {final_data[i][0]}')
-        print(f'{directories[i]} - FINAL BGRY MEDIAN: {final_data[i][1]}')
-        print(f'{directories[i]} - FINAL BGRY MAX: {final_data[i][2]}')
-        print(f'{directories[i]} - FINAL BGRY MIN: {final_data[i][3]}')
-    whiteVals[whiteVal] = [final_data]
-
-
+    for i in range(len(median_data)):
+        print(f'{directories[i]} - BGRY MEDIAN: {median_data[i]}')
 
     # TESTING
     print(f"WHITE={whiteVal} TESTING CLASSIFIER...")
+    colorStorage = {}
+    def getFromStorage(dir, file):
+        if dir in colorStorage and file in colorStorage[dir]:
+            return colorStorage[dir][file]
+        return None
+    def addToStorage(dir, file, color):
+        if dir in colorStorage:
+            colorStorage[dir][file] = color
+        else:
+            colorStorage[dir] = {file : color}
 
-    meanColorSet = [final_data[0][0], final_data[1][0]]
-    medianColorSet = [final_data[0][1], final_data[1][1]]
-    colorSetNames = ["Mean", "Median"]
-    colorSets = [meanColorSet, medianColorSet]
-    accuracies = []
+    # Loop through the range of colors to see what combination works best
+    for i in range(-1*COLOR_RANGE, COLOR_RANGE+1):
+        for j in range(-1*COLOR_RANGE, COLOR_RANGE+1):
+            test_data = [[x + i for x in median_data[0]], [y + j for y in median_data[1]]]
+            dirAccuracies = []
+            # Check each dir
+            for dirIdx, directory in enumerate(directories):
+                correctDetections = 0
+                imgsProcessed = 0
+                # Check each file
+                for filename in testingSets[dirIdx]:
+                    # The the color of the img
+                    avgColors = getFromStorage(dirIdx, filename)
+                    if avgColors is None:
+                        avgColors = getColors(directory, filename, whiteVal)
+                        addToStorage(dirIdx, filename, avgColors)
+                    if avgColors is None:
+                        continue
 
-    for colorSetIdx, colorSet in enumerate(colorSets):
-        dirAccuracies = []
-        for dirIdx, directory in enumerate(directories):
-            correctDetections = 0
-            imgsProcessed = 0
-            for filename in testingSets[dirIdx]:
-                avgColors = getColors(directory, filename, whiteVal)
-                if avgColors is None:
-                    continue
+                    # See which cat it thinks it is
+                    catDetected = cameraController.getWhichCat(avgColors, test_data)
+                    if catDetected == dirIdx:
+                        correctDetections += 1
+                    imgsProcessed += 1
+                
+                accuracy = round((float(correctDetections) / float(imgsProcessed)) * 100, 2)
+                dirAccuracies.append(accuracy)
 
-                catDetected = cameraController.getWhichCat(avgColors, colorSet)
-                if catDetected == dirIdx:
-                    correctDetections += 1
-                imgsProcessed += 1
-            
-            accuracy = round((float(correctDetections) / float(imgsProcessed)) * 100, 2)
-            dirAccuracies.append(accuracy)
-            print(f"{colorSetNames[colorSetIdx]} - {directory} - Accuracy: {accuracy}%")
-        accuracies.append(dirAccuracies)
+            print(f"White={whiteVal} - Accuracies={dirAccuracies} - BGRs={test_data}")
+            # Determine if this set of colors has the better accuracies
+            if sum(dirAccuracies) > sum(bestAccuracies):
+                bestWhite = whiteVal
+                bestBgr = test_data
+                bestAccuracies = dirAccuracies
 
-    # save to the white vals dict
-    whiteVals[whiteVal].append(accuracies)
-
-# Find the white with the highest accuracies
-bestWhite = 0
-bestMeasure = 0
-accuracyVal = 0
-for whiteVal in whiteVals:
-    accuracies = whiteVals[whiteVal][1]
-    for measureIdx, measureAccuracies in enumerate(accuracies):
-        newAccuracyVal = sum(measureAccuracies)
-        if newAccuracyVal > accuracyVal:
-            bestWhite = whiteVal
-            bestMeasure = measureIdx
-            accuracyVal = newAccuracyVal
 
 # Print the info
 print("BEST VALUES:")
 print("White:", bestWhite)
 for dirIdx, dir in enumerate(directories):
-    bestVals = whiteVals[bestWhite][0][dirIdx][bestMeasure]
-    accuracy = whiteVals[bestWhite][1][bestMeasure][dirIdx]
-    print(f"{dir} - {bestVals} - Accuracy={accuracy}%")
+    print(f"{dir} - {bestBgr[dirIdx]} - Accuracy={bestAccuracies[dirIdx]}%")

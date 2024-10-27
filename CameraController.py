@@ -49,9 +49,14 @@ class CameraController:
         # -- Set up tracking info
         # Each idx in the array is a cat represented by [framesSeen, framesNotSeen]
         self.__trackingInfo = []
+
+        self.__wrongSideCounter = [] # Counts the number of frames each side sees the wrong cat
+
         self.__emailSent = [] # track when we send emails so we don't send duplicates after a cat has been identified
+        
         for _ in Config.CATS:
             self.__trackingInfo.append([0,0])
+            self.__wrongSideCounter.append(0)
             self.__emailSent.append(False)
 
         # Initialize env variables
@@ -72,18 +77,25 @@ class CameraController:
         # Detect cats
         img, objectInfo = self.detectCat(img)
 
-        # Analyze any potential cats
+        # See if we can fast-track identification
+        self.__quickIdentify(len(objectInfo))
+
+        # Look at each cat in frame and analyze
         detectedCats = []
+        detectedCatSides = {i: [] for i in range(len(Config.CATS))}
+        # Analyze any potential cats
         for catInfo in objectInfo:
             catColors = self.getAverageColor(img, catInfo[0])
             catIndex = self.getWhichCat(catColors)
+            catSide = self.__getWhichSide(img, catInfo[0])
             if catIndex in detectedCats:
                 continue
             else:
                 detectedCats.append(catIndex)
+                detectedCatSides[catSide].append(catIndex)
 
-            Logger.log(LogType.CAMERA, 2, f"(func: checkCamera) Cat Detected: {Config.CATS[catIndex]} --- Color: {catColors}")
-        
+            Logger.log(LogType.CAMERA, 2, f"(func: checkCamera) Cat Detected: {Config.CATS[catIndex]} --- Color: {catColors} --- Side: {catSide}")
+
         # Update tracking info
         savedImgName = None
         for idx in range(len(Config.CATS)):
@@ -95,6 +107,18 @@ class CameraController:
         if len(objectInfo) == 0:
             Logger.log(LogType.CAMERA, 4, f"(func: checkCamera) No Cat Detected")
 
+        # Update Wrong-Side counter
+        for sideNum, catsPresent in detectedCatSides.items():
+            # if multiple cats are on a side, trigger the counter
+            if len(catsPresent) > 1:
+                self.__updateWrongSideCounter(sideNum)
+            # for sides with 1 cat, only bother checking if the cat has been identified
+            # elif len(catsPresent) == 1:
+            #     catIdx = catsPresent[0]
+            #     if self.__catIdentified(catIdx) and sideNum != Config.CAT_SIDES[catIdx]:
+            #         self.__updateWrongSideCounter(sideNum)
+
+
         # Display the video
         if Config.SHOW_VIDEO:
             cv2.imshow("Output",img)
@@ -104,7 +128,7 @@ class CameraController:
         # Return which cats have been identified
         catsIdentified = []
         for catIdx in range(len(Config.CATS)):
-            if self.__trackingInfo[catIdx][0] >= Config.FRAMES_FOR_CONFIRMATION:
+            if self.__catIdentified(catIdx):
                 catsIdentified.append(catIdx)
 
                 # Email image
@@ -252,7 +276,7 @@ class CameraController:
     # Function: getAverageColor
     # Description: given an image an a box where a cat was detected, 
     #               determine the average color of the area
-    #           Returns a tuple for the average bgr value and greyscale value
+    #           Returns a tuple for the average bgr value and greyscale 
     def getAverageColor(self, img, catBox, whiteUpperThreshold=Config.WHITE_UPPER_THRESHOLD):
         Logger.log(LogType.CAMERA, 5, "(Func: getAverageColor) function invoked")
         # Get the box info of what we want to scan
@@ -295,6 +319,32 @@ class CameraController:
 
         return avg_colors
     
+    # Function: getWhichSide
+    # Description: gets which side of the image the cat is on
+    def __getWhichSide(self, img, catBox):
+        Logger.log(LogType.CAMERA, 5, "(Func: __getCroppedImg) function invoked")
+        # Get the box info of what we want to scan
+        width = catBox[2] / 2
+        x = catBox[0] + (width / 4)
+
+        catCenterX = x + (width / 2)
+
+        # Break the img width up
+        _, imgWidth, _ = img.shape
+        sideWidth = imgWidth / len(Config.CATS)
+        breakpoints = []
+        lastX = 0
+        for _ in range(len(Config.CATS)):
+            lastX+=sideWidth
+            breakpoints.append(lastX)
+
+        # Determine which portion the cat is in
+        for i, breakpoint in enumerate(breakpoints):
+            if catCenterX <= breakpoint:
+                return i
+        return len(breakpoints) - 1
+
+
     
     # Function: getWhichCat
     # Description: Determine which cat we're looking at based on the detected colors
@@ -340,6 +390,42 @@ class CameraController:
                 
 
         Logger.log(LogType.CAMERA, 3, f'(Func: __updateTrackingNumbers) Tracking State: {self.__trackingInfo}')
+
+
+    # Function: catIdentified
+    # Description: helper to determine if the given cat has been identified
+    def __catIdentified(self, catIdx):
+        Logger.log(LogType.CAMERA, 5, f"(Func: __catIdentified) function invoked - catIdx={catIdx}")
+        return self.__trackingInfo[catIdx][0] >= Config.FRAMES_FOR_CONFIRMATION
+
+
+    # Function: updateWrongSideCounter
+    # Description: Updates the counter for each side tracking when the wrong cat is present. If the counter exceeds the cap, it resets tracking for that side (closing the box)
+    def __updateWrongSideCounter(self, sideIdx):
+        Logger.log(LogType.CAMERA, 5, f"(Func: __updateWrongSideCounter) function invoked - sideIdx={sideIdx}")
+
+        self.__wrongSideCounter[sideIdx]+=1
+
+        # if the counter has exceeded the cap, then reset the cooresponding tracking info
+        if self.__wrongSideCounter[sideIdx] >= Config.FRAMES_FOR_WRONG_SIDE:
+            Logger.log(LogType.CAMERA, 1, f"(Func: __updateWrongSideCounter) Side {sideIdx} has had the wrong cat there for too long. Resetting...")
+            self.__wrongSideCounter[sideIdx] = 0
+            self.__trackingInfo[sideIdx] = [0,0]
+
+
+    # Function: quickIdentify
+    # Description: If all cats are in view, then we can quickly identify them
+    def __quickIdentify(self, catsInView):
+        Logger.log(LogType.CAMERA, 5, f"(Func: __quickIdentify) function invoked - catsInView={catsInView}")
+
+        # If the number of cats in view equals the total cats, then set the tracking info to indicate all as identified
+        if catsInView >= len(Config.CATS):
+            Logger.log(LogType.CAMERA, 1, f'(Func: __quickIdentify) ALL CATS IDENTIFIED')
+            for idx in range(len(Config.CATS)):
+                self.__trackingInfo[idx][0] = Config.FRAMES_FOR_CONFIRMATION
+            return True
+        
+        return False
 
 
     # Function: resetCatTracking

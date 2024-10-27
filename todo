@@ -1,9 +1,0 @@
-- Treat avgs as color thresholds
-    - Bento gets an upper threshold where anything below it is him
-    - Nori gets a lower threshold where anything above it is her
-    - Anything in between is then judge by how close it is to the thresholds
-- Track a cat's center position during & after detection
-    - If there's only 1 cat being seen, then you can skip color detection as you are tracking
-    - If there is 2, then use color detection to determine position
-    - if the cat is on the wrong side for too long, close that side's box
-    - If a cat is already identified and a new cat appears, assume it is the other cat and immidiately ID
