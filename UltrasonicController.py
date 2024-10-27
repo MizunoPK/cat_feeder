@@ -13,12 +13,13 @@ import time
 #       1: Change in detecting something
 #       2: Cooldown Info
 #       3: Distance measurements
-#       4: All function invokations
+#       4: detectingSomething values
+#       5: All function invokations
 class UltrasonicController:
 
     def __init__(self, boxNum):
         self.__boxNum = boxNum
-        Logger.log(LogType.ULTRASONIC, 4, f"(func: __init__, box: {self.__boxNum}) function invoked")
+        Logger.log(LogType.ULTRASONIC, 5, f"(func: __init__, box: {self.__boxNum}) function invoked")
 
         self.__detectingSomething = True
         self.__cooldownStartTime = None
@@ -38,7 +39,7 @@ class UltrasonicController:
     # Function: isDetectingObject
     # Description: returns boolean whether or not the senor is detecting something
     def isDetectingObject(self):
-        Logger.log(LogType.ULTRASONIC, 4, f"(func: isDetectingObject, box: {self.__boxNum}) function invoked")
+        Logger.log(LogType.ULTRASONIC, 4, f"(func: isDetectingObject, box: {self.__boxNum}) function invoked - detectingSomething={self.__detectingSomething}")
         
         # Check on the cooldown
         isOffCooldown = self.__isOffCooldown()
@@ -80,11 +81,12 @@ class UltrasonicController:
                 
                 # If we are seeing nothing for the first time - start the cooldown
                 elif self.__cooldownStartTime is None:
+                    Logger.log(LogType.ULTRASONIC, 1, f"(func: isDetectingObject, box: {self.__boxNum})  OBJECT NOT DETECTED - STARTING COOLDOWN")
                     self.__cooldownStartTime = time.perf_counter()
 
                 # If we are seeing nothing after the cooldown finishes - change the state
                 elif isOffCooldown: 
-                    Logger.log(LogType.ULTRASONIC, 1, f"(func: isDetectingObject, box: {self.__boxNum})  OBJECT NO LONGER DETECTED")
+                    Logger.log(LogType.ULTRASONIC, 1, f"(func: isDetectingObject, box: {self.__boxNum}) COOLDOWN FINISHED - OBJECT CONFIRMED GONE")
                     self.__detectingSomething = False
                     self.__cooldownStartTime = None
 

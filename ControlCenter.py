@@ -10,6 +10,7 @@ from BoxController import BoxController
 #       Uses the controllers to ensure the feeders are working properly
 # Logs:
 #       1: Shut Down
+#       2: Camera results
 #       5: All function invocations
 class ControlCenter:
 
@@ -37,6 +38,7 @@ class ControlCenter:
 
             # Get info from the camera
             catsIdentified = [] if (not needCamera) else self.__cameraController.checkCamera()
+            Logger.log(LogType.CONTROL, 2, f"Cats Identified: {catIdentified}")
 
             # Process each box
             for catNum in range(len(Config.CATS)):
