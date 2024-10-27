@@ -38,7 +38,7 @@ class ControlCenter:
 
             # Get info from the camera
             catsIdentified = [] if (not needCamera) else self.__cameraController.checkCamera()
-            if len(catIdentified) > 0:
+            if len(catsIdentified) > 0:
                 Logger.log(LogType.CONTROL, 2, f"Cats Identified: {catsIdentified}")
 
             # Process each box
