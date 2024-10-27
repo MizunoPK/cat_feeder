@@ -53,8 +53,8 @@ class Config:
     ULTRASONIC_ACTIVE = True # Whether or not the sensors are plugged in and ready
     ULTRASONIC_TRIG_PINS = [21, 24] # The gpio slots being used by the ultrasonic trig pins - should correspond to the cat order
     ULTRASONIC_ECHO_PINS = [20, 23] # The gpio slots being used by the ultrasonic echo pins - should correspond to the cat order
-    ULTRASONIC_DETECTED_RANGE = [[5, 28], [5, 28]] # Specifies the distance range we expect for if a cat is feeding
-    ULTRASONIC_UNDETECTED_RANGE = [[29, 32], [29, 32]] # Specifies the distance range we expect the ultrasonic to be getting values in when no cat is present
+    ULTRASONIC_DETECTED_RANGE = [[5, 25], [5, 28]] # Specifies the distance range we expect for if a cat is feeding
+    ULTRASONIC_UNDETECTED_RANGE = [[26, 32], [29, 32]] # Specifies the distance range we expect the ultrasonic to be getting values in when no cat is present
     ULTRASONIC_COOLDOWN = 5 # seconds until we've decided the cat has definitely left
 
     # --- BUTTON CONFIG ---

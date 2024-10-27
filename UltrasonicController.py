@@ -20,7 +20,7 @@ class UltrasonicController:
         self.__boxNum = boxNum
         Logger.log(LogType.ULTRASONIC, 4, f"(func: __init__, box: {self.__boxNum}) function invoked")
 
-        self.__detectingSomething = False
+        self.__detectingSomething = True
         self.__cooldownStartTime = None
 
         trigPin = Config.ULTRASONIC_TRIG_PINS[boxNum]
@@ -66,6 +66,7 @@ class UltrasonicController:
             if objectDetected and not isOffCooldown:
                 Logger.log(LogType.ULTRASONIC, 2, f"(func: isDetectingObject, box: {self.__boxNum})  Cat was detected during cooldown - resetting cooldown...")
                 self.__cooldownStartTime = None
+                self.__detectingSomething = True
                 return self.__detectingSomething
             
 
@@ -118,7 +119,7 @@ class UltrasonicController:
     def resetDetecting(self):
         Logger.log(LogType.ULTRASONIC, 4, f"(func: isDetectingObject, box: {self.__boxNum}) function invoked")
         self.__detectingSomething = True
-        self.__cooldownStartTime = self.__cooldownStartTime = time.perf_counter()
+        self.__cooldownStartTime = time.perf_counter()
 
 
 if __name__ == "__main__":

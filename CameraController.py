@@ -175,7 +175,7 @@ class CameraController:
         current_time = datetime.datetime.now()
         file_safe_time = current_time.strftime(f"{Config.CATS[catNum]}-%Y-%m-%d_%H-%M-%S.jpg")
         file_path = os.path.join(imgDir, file_safe_time)
-        Logger.log(LogType.CAMERA, 1, "(Func: __saveImage) saving image to {file_path}")
+        Logger.log(LogType.CAMERA, 1, f"(Func: __saveImage) image to {file_path}")
         cv2.imwrite(file_path, img)
         return file_safe_time
 
