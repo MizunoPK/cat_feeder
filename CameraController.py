@@ -100,7 +100,7 @@ class CameraController:
         savedImgName = None
         for idx in range(len(Config.CATS)):
             catSeen = idx in detectedCats
-            if catSeen or (not catSeen and self.__trackingInfo[idx][0] > 0):
+            if catSeen or ((not catSeen) and self.__trackingInfo[idx][0] > 0):
                 self.__updateTrackingNumbers(idx, catSeen)
                 if catSeen and Config.SAVE_IMAGES:
                     savedImgName = self.__saveImage(img, idx)
@@ -165,7 +165,7 @@ class CameraController:
 
         # Delete the oldest image if we've reached the cap
         imgs = os.listdir(imgDir)
-        if not (not Config.SAVE_IMAGES and Config.EMAIL_IMAGES):
+        if not ((not Config.SAVE_IMAGES) and Config.EMAIL_IMAGES):
             if len(imgs) >= Config.MAX_IMGS:
                 imgs_full_path = [os.path.join(imgDir, f) for f in imgs if os.path.isfile(os.path.join(imgDir, f))]
                 oldest_file = min(imgs_full_path, key=os.path.getctime)

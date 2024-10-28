@@ -64,7 +64,7 @@ class UltrasonicController:
 
 
             # If a cat was detected while in cooldown - reset cooldown
-            if objectDetected and not isOffCooldown:
+            if objectDetected and (not isOffCooldown):
                 Logger.log(LogType.ULTRASONIC, 2, f"(func: isDetectingObject, box: {self.__boxNum})  Cat was detected during cooldown - resetting cooldown...")
                 self.__cooldownStartTime = None
                 self.__detectingSomething = True

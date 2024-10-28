@@ -62,7 +62,7 @@ class ServoController():
         Logger.log(LogType.SERVO, 5, f"(func: getState, box: {self.__boxNum}) function invoked")
 
         # If the rotate thread has finished...
-        if self.__threadDoneEvent is not None and self.__threadDoneEvent.is_set():
+        if (self.__threadDoneEvent is not None) and self.__threadDoneEvent.is_set():
             # clean up the thread
             self.__thread.join()
             self.__thread = None
