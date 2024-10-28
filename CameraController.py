@@ -184,57 +184,58 @@ class CameraController:
     # Description: Email the image to the specified email
     def __emailImage(self, imgName, catNum):
         Logger.log(LogType.CAMERA, 5, "(Func: __emailImage) function invoked")
-        smtp_port = 587                 # Standard secure SMTP port
-        smtp_server = "smtp.gmail.com"  # Google SMTP Server
-        pswd = os.getenv("GOOGLE_PASS")
-        subject = f"Cat Feeder - {imgName}"
-        body = ""
-
-        # make a MIME object to define parts of the email
-        msg = MIMEMultipart()
-        msg['From'] = Config.EMAIL
-        msg['To'] = Config.EMAIL
-        msg['Subject'] = subject
-
-        # Attach the body of the message
-        msg.attach(MIMEText(body, 'plain'))
-
         # Define the file to attach
         filename = os.path.join(Config.SAVED_IMG_DIRS[catNum], imgName)
+        if os.path.exists(filename):
+            smtp_port = 587                 # Standard secure SMTP port
+            smtp_server = "smtp.gmail.com"  # Google SMTP Server
+            pswd = os.getenv("GOOGLE_PASS")
+            subject = f"Cat Feeder - {imgName}"
+            body = ""
 
-        # Open the file in python as a binary
-        attachment= open(filename, 'rb')  # r for read and b for binary
+            # make a MIME object to define parts of the email
+            msg = MIMEMultipart()
+            msg['From'] = Config.EMAIL
+            msg['To'] = Config.EMAIL
+            msg['Subject'] = subject
 
-        # Encode as base 64
-        attachment_package = MIMEBase('application', 'octet-stream')
-        attachment_package.set_payload((attachment).read())
-        encoders.encode_base64(attachment_package)
-        attachment_package.add_header('Content-Disposition', "attachment; filename= " + filename)
-        msg.attach(attachment_package)
+            # Attach the body of the message
+            msg.attach(MIMEText(body, 'plain'))
 
-        # Cast as string
-        text = msg.as_string()
+            # Open the file in python as a binary
+            with open(filename, 'rb') as attachment:  # r for read and b for binary
+                # Encode as base 64
+                attachment_package = MIMEBase('application', 'octet-stream')
+                attachment_package.set_payload((attachment).read())
+                encoders.encode_base64(attachment_package)
+                attachment_package.add_header('Content-Disposition', "attachment; filename= " + filename)
+                msg.attach(attachment_package)
 
-        # Connect with the server
-        TIE_server = smtplib.SMTP(smtp_server, smtp_port)
-        TIE_server.starttls()
-        TIE_server.login(Config.EMAIL, pswd)
+                # Cast as string
+                text = msg.as_string()
 
-        # Send emails to "person" as list is iterated
-        TIE_server.sendmail(Config.EMAIL, Config.EMAIL, text)
+                # Connect with the server
+                TIE_server = smtplib.SMTP(smtp_server, smtp_port)
+                TIE_server.starttls()
+                TIE_server.login(Config.EMAIL, pswd)
 
-        Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) Email sent to {Config.EMAIL} with image {imgName}")
+                # Send emails to "person" as list is iterated
+                TIE_server.sendmail(Config.EMAIL, Config.EMAIL, text)
 
-        # Close the port
-        TIE_server.quit()
+                Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) Email sent to {Config.EMAIL} with image {imgName}")
 
-        # If we aren't saving images, then delete the image we just sent
-        if not Config.SAVE_IMAGES:
-            os.remove(filename)
-            Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) {imgName} Deleted")
+                # Close the port
+                TIE_server.quit()
 
-        # Flag that we sent an email for this cat
-        self.__emailSent[catNum] = True
+                # If we aren't saving images, then delete the image we just sent
+                if not Config.SAVE_IMAGES:
+                    os.remove(filename)
+                    Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) {imgName} Deleted")
+
+                # Flag that we sent an email for this cat
+                self.__emailSent[catNum] = True
+        else:
+            Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) {imgName} ERROR: does not exist...")
 
 
     # Function: detectCat
