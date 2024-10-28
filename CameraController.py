@@ -78,7 +78,7 @@ class CameraController:
         img, objectInfo = self.detectCat(img)
 
         # See if we can fast-track identification
-        self.__quickIdentify(len(objectInfo))
+        quickIdWorked = self.__quickIdentify(len(objectInfo))
 
         # Look at each cat in frame and analyze
         detectedCats = []
@@ -101,7 +101,8 @@ class CameraController:
         for idx in range(len(Config.CATS)):
             catSeen = idx in detectedCats
             if catSeen or ((not catSeen) and self.__trackingInfo[idx][0] > 0):
-                self.__updateTrackingNumbers(idx, catSeen)
+                if not quickIdWorked:
+                    self.__updateTrackingNumbers(idx, catSeen)
                 if catSeen and Config.SAVE_IMAGES:
                     savedImgName = self.__saveImage(img, idx)
         if len(objectInfo) == 0:
@@ -185,8 +186,7 @@ class CameraController:
     def __emailImage(self, imgName, catNum):
         Logger.log(LogType.CAMERA, 5, "(Func: __emailImage) function invoked")
         # Define the file to attach
-        filename = os.path.join(Config.SAVED_IMG_DIRS[catNum], imgName)
-        if os.path.exists(filename):
+        try:
             smtp_port = 587                 # Standard secure SMTP port
             smtp_server = "smtp.gmail.com"  # Google SMTP Server
             pswd = os.getenv("GOOGLE_PASS")
@@ -203,6 +203,7 @@ class CameraController:
             msg.attach(MIMEText(body, 'plain'))
 
             # Open the file in python as a binary
+            filename = os.path.join(Config.SAVED_IMG_DIRS[catNum], imgName)
             with open(filename, 'rb') as attachment:  # r for read and b for binary
                 # Encode as base 64
                 attachment_package = MIMEBase('application', 'octet-stream')
@@ -234,8 +235,8 @@ class CameraController:
 
                 # Flag that we sent an email for this cat
                 self.__emailSent[catNum] = True
-        else:
-            Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) {imgName} ERROR: does not exist...")
+        except:
+            Logger.log(LogType.CAMERA, 1, f"(Func: __emailImage) {imgName} ERROR: Something went wrong attempting to email the image...")
 
 
     # Function: detectCat
@@ -419,13 +420,12 @@ class CameraController:
     def __quickIdentify(self, catsInView):
         Logger.log(LogType.CAMERA, 5, f"(Func: __quickIdentify) function invoked - catsInView={catsInView}")
 
-        # If the number of cats in view equals the total cats, then set the tracking info to indicate all as identified
+        # If the number of cats in view equals the total cats, then give a bump to the tracking info
         if catsInView >= len(Config.CATS):
-            Logger.log(LogType.CAMERA, 1, f'(Func: __quickIdentify) ALL CATS IDENTIFIED')
+            Logger.log(LogType.CAMERA, 1, f'(Func: __quickIdentify) ALL CATS DETECTED')
             for idx in range(len(Config.CATS)):
-                self.__trackingInfo[idx][0] = Config.FRAMES_FOR_CONFIRMATION
+                self.__trackingInfo[idx][0] += 3
             return True
-        
         return False
 
 
